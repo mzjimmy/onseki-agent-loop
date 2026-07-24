@@ -12,6 +12,8 @@ dist/
 build/
 .cache/
 .analysis-venv/
+__pycache__/
+*.py[cod]
 coverage/
 *.log
 
