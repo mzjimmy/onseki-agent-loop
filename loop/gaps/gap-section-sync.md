@@ -2,7 +2,7 @@
 
 ```yaml
 id: gap-section-sync
-status: READY
+status: RETIRED
 goal_id: goal-realtime-arrangement-map
 priority: P0
 risk: medium
@@ -14,6 +14,11 @@ time_budget_minutes: 45
 ## Goal
 
 用户播放音乐时，章节名、编曲解释、DAW 播放头和舞台乐手状态必须来自同一播放时钟，并在章节边界保持同步。
+
+> Retired on 2026-07-24: the user approved the broader MVP interaction scope. Its
+> acceptance is preserved and incorporated into `gap-mvp-core-experience.md` so a
+> single independent validation can assess the candidate without splitting a
+> tightly coupled UI change across contracts.
 
 ## Fact
 
@@ -102,3 +107,4 @@ Validator 最少执行：
 - 浏览器计时环境无法稳定达到 100ms；
 - 第三次尝试仍未通过；
 - Validator 与复现证据冲突。
+

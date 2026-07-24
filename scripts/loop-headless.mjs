@@ -110,7 +110,7 @@ const runId = `run-${new Date().toISOString().replace(/[-:.TZ]/g, "").slice(0, 1
 async function runAgent(role, rolePrompt) {
   const child = spawn(
     "cursor-agent",
-    ["-p", "--force", "--output-format", "json", rolePrompt],
+    ["-p", "--trust", "--force", "--output-format", "json", rolePrompt],
     {
       cwd: root,
       env: process.env,

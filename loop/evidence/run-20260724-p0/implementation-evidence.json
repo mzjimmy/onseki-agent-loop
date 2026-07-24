@@ -1,0 +1,33 @@
+{
+  "run_id": "run-20260724-p0",
+  "attempt_id": "attempt-p0-001",
+  "baseline": {
+    "commit": "0b35f72",
+    "known_state": "Shared state.time existed, but no pure view-state contract or reproducible boundary checks were present."
+  },
+  "candidate": {
+    "contract_hash": "sha256:5391b2d905bdeb4feeb2ea3df6cd92b39d72f9325df12147a91730113f14479d",
+    "commands": [
+      {
+        "command": "npm run check",
+        "result": "PASS",
+        "detail": "node syntax checks passed; 2/2 shared-state tests passed."
+      },
+      {
+        "command": "Chrome local behavior probe",
+        "result": "PASS",
+        "detail": "At 0, 12, 22, 36 seconds, DOM section, derived section and playhead were respectively 引子/00:00.0, 发展/00:12.0, 展开/00:22.0, 余韵/00:36.0."
+      },
+      {
+        "command": "Chrome mix probe",
+        "result": "PASS",
+        "detail": "At 13 seconds mute(strings) yielded musician and track-row state muted. solo(keys) yielded keys active and strings/bass/drums muted."
+      },
+      {
+        "command": "Chrome transport probe",
+        "result": "PASS",
+        "detail": "Playback advanced to 0.4548 seconds; pause held the timestamp unchanged for a 300ms observation window."
+      }
+    ]
+  }
+}

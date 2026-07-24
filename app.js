@@ -1,23 +1,11 @@
-(function () {
-  "use strict";
+import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } from "./player-state.mjs";
 
-  const DURATION = 48;
-  const tracks = [
-    { id: "keys", name: "FELT PIANO", cn: "毛毡钢琴", icon: "♮", color: "#f3ad44", clips: [[0, 12, "MOTIF A"], [12, 16, "BROKEN CHORDS"], [28, 12, "MOTIF A′"], [40, 8, "CODA"]] },
-    { id: "strings", name: "CELLO + STRINGS", cn: "大提琴 / 弦乐", icon: "♩", color: "#55ccd6", clips: [[10, 10, "COUNTER LINE"], [20, 16, "SUSTAIN / SWELL"], [36, 8, "DESCENT"]] },
-    { id: "bass", name: "ELECTRIC BASS", cn: "电贝斯", icon: "♬", color: "#b9f13f", clips: [[16, 16, "ROOT PULSE"], [32, 12, "WALK DOWN"]] },
-    { id: "drums", name: "BRUSH DRUMS", cn: "鼓刷 / 打击乐", icon: "◉", color: "#ef6f55", clips: [[22, 14, "BRUSH GROOVE"], [36, 8, "HALF TIME"]] }
-  ];
-  const sections = [
-    { start: 0, end: 12, name: "引子", chord: "Dm(add9)", register: "中低音区", density: 24, moment: "一个未说完的句子，停在空气里。", trace: "旋律没有急着落到根音，而是停在九度音上。悬置不是装饰，而是整首曲子的第一口呼吸。", next: "00:12", cue: "大提琴进入，与钢琴形成反向运动", note: "钢琴先给出动机，其他声部暂时留白。" },
-    { start: 12, end: 22, name: "发展", chord: "Bbmaj7 / F", register: "中音区展开", density: 48, moment: "另一条线从背后出现，空间开始有了纵深。", trace: "大提琴不复制旋律，而以更长的时值逆向下行；两个声部的呼吸不同，却在和声节点相遇。", next: "00:22", cue: "低音与鼓刷建立脉搏", note: "注意大提琴：它不是伴奏，而是与旋律对话的第二叙述者。" },
-    { start: 22, end: 36, name: "展开", chord: "Gm9 → A7sus4", register: "全音域", density: 82, moment: "节奏终于落地，但没有破坏原来的寂静。", trace: "贝斯只强调结构性重拍，鼓刷填补拍间空气。密度增加来自声部交错，而不是每件乐器都演奏更多。", next: "00:36", cue: "鼓组减半，弦乐向下收束", note: "高潮的秘密不是更响，而是四条时间线终于同时相遇。" },
-    { start: 36, end: 48.1, name: "余韵", chord: "Dm6 / A", register: "向低音区回落", density: 35, moment: "乐队逐个离场，只留下无法被解释的余温。", trace: "结尾没有完整复现主题，只保留它的节奏轮廓。熟悉感来自记忆补全，也让作品保持开放。", next: "END", cue: "主题留下一个没有句号的尾音", note: "减法开始：鼓、贝斯、弦乐依次把空间还给钢琴。" }
-  ];
+(() => {
+  "use strict";
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const state = { time: 0, playing: false, loop: false, muted: {}, solo: null, raf: 0, last: 0, uploaded: false, nextSchedule: 0 };
+  const state = { time: 0, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", raf: 0, last: 0, uploaded: false, nextSchedule: 0 };
   let audioCtx = null, master = null, timers = [], upload = $("#uploaded-audio");
 
   function waveBars(seed) {
@@ -56,10 +44,11 @@
     master.connect(audioCtx.destination);
   }
 
-  function active(id, t) {
-    const tr = tracks.find(x => x.id === id);
-    return tr.clips.some(c => t >= c[0] && t < c[0] + c[1]) && !(state.solo ? state.solo !== id : state.muted[id]);
+  function effectiveMix() {
+    return state.arrangement === "plain" ? { ...state, solo: "keys" } : state;
   }
+  function viewStateAt(time = state.time) { return deriveViewState(time, effectiveMix()); }
+  function active(id, t) { return viewStateAt(t).tracks[id].active; }
 
   function tone(freq, when, duration, type, gain, id) {
     if (!active(id, state.time + Math.max(0, when - audioCtx.currentTime))) return;
@@ -74,7 +63,7 @@
     ensureAudio();
     const now = audioCtx.currentTime, start = Math.max(state.time, state.nextSchedule), horizon = Math.min(DURATION, state.time + 2.2);
     for (let t = start; t < horizon; t += .5) {
-      const when = now + (t - state.time), step = Math.floor(t * 2), chord = sections.find(s => t >= s.start && t < s.end);
+      const when = now + (t - state.time), step = Math.floor(t * 2), chord = viewStateAt(t).section;
       const roots = chord.name === "发展" ? [58, 62, 65, 69] : chord.name === "展开" ? [55, 58, 62, 69] : [50, 53, 57, 64];
       tone(440 * 2 ** ((roots[step % roots.length] - 69) / 12), when, .34, "triangle", .075, "keys");
       if (step % 2 === 0) tone(440 * 2 ** ((roots[0] - 12 - 69) / 12), when, .42, "sine", .12, "bass");
@@ -111,8 +100,12 @@
     if (state.uploaded) state.time = upload.currentTime; else state.time += (now - state.last) / 1000;
     state.last = now;
     if (!state.uploaded && state.nextSchedule - state.time < .9) schedule();
+    const currentSection = viewStateAt().section;
+    if (state.loop && state.time >= currentSection.end) {
+      seek(currentSection.start); play(); return;
+    }
     if (state.time >= DURATION) {
-      if (state.loop) { seek(0); play(); } else { state.time = DURATION; pause(); }
+      state.time = DURATION; pause();
     }
     update(); state.raf = requestAnimationFrame(tick);
   }
@@ -122,22 +115,30 @@
     return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}.${d}`;
   }
 
-  function sectionAt(t) { return sections.find(s => t >= s.start && t < s.end) || sections[sections.length - 1]; }
-
   function update() {
-    $("#seek").value = state.time; $("#time-current").textContent = fmt(state.time);
+    const view = viewStateAt();
+    $("#seek").value = view.time; $("#time-current").textContent = fmt(view.time);
     const laneWidth = Math.max(0, $("#track-stack").clientWidth - (innerWidth <= 720 ? 130 : 190));
-    $("#playhead").style.transform = `translateX(${laneWidth * state.time / DURATION}px)`;
-    $("#playhead span").textContent = fmt(state.time);
-    const sec = sectionAt(state.time);
+    $("#playhead").style.transform = `translateX(${laneWidth * view.time / DURATION}px)`;
+    $("#playhead span").textContent = fmt(view.time);
+    const sec = view.section;
+    document.documentElement.dataset.section = sec.name;
     $("#section-name").textContent = sec.name; $("#moment-copy").textContent = sec.moment; $("#chord").textContent = sec.chord;
     $("#register").textContent = sec.register; $("#density").textContent = `${sec.density}%`; $("#density-meter").style.width = `${sec.density}%`;
     $("#trace-copy").textContent = sec.trace; $("#next-time").textContent = sec.next; $("#next-copy").textContent = sec.cue;
     $("#conductor-note span").textContent = sec.note;
+    $("#lead-instrument").textContent = sec.lead;
+    $("#principle-copy").textContent = sec.principle;
+    $("#analysis-source").textContent = state.uploaded ? "用户音频 · 尚未分析" : "示例预设 · 编曲数据";
+    $("#honesty-note").textContent = state.uploaded ? "这首用户音频目前只同步播放时间；乐器、和弦与章节不会被伪装成检测结果。" : "示例曲目使用预设编排数据；它不是原作分轨。";
+    $("#arrangement-btn").textContent = state.arrangement === "plain" ? "普通编排" : "完整编排";
+    $("#arrangement-btn").classList.toggle("active", state.arrangement === "plain");
     tracks.forEach(tr => {
-      const on = active(tr.id, state.time);
+      const trackView = view.tracks[tr.id], on = trackView.active;
       $(`.musician[data-track="${tr.id}"]`).classList.toggle("is-active", on);
       $(`.track-row[data-track="${tr.id}"]`).classList.toggle("is-live", on);
+      $(`.musician[data-track="${tr.id}"]`).dataset.state = trackView.muted ? "muted" : on ? "active" : "rest";
+      $(`.track-row[data-track="${tr.id}"]`).dataset.state = trackView.muted ? "muted" : on ? "active" : "rest";
     });
   }
 
@@ -149,19 +150,20 @@
 
   function refreshMix() {
     tracks.forEach(tr => {
-      const muted = state.solo ? state.solo !== tr.id : !!state.muted[tr.id];
-      const solo = state.solo === tr.id;
+      const mix = effectiveMix(), muted = mix.solo ? mix.solo !== tr.id : !!mix.muted[tr.id];
+      const solo = mix.solo === tr.id;
       const row = $(`.track-row[data-track="${tr.id}"]`), musician = $(`.musician[data-track="${tr.id}"]`);
       row.classList.toggle("is-muted", muted); row.classList.toggle("is-solo", solo);
       musician.classList.toggle("is-muted", muted); musician.classList.toggle("is-solo", solo);
       row.querySelector('[data-action="mute"]').classList.toggle("active", !!state.muted[tr.id]);
       row.querySelector('[data-action="solo"]').classList.toggle("active", solo);
     });
+    update();
     if (state.playing && !state.uploaded) { stopAudio(); schedule(); }
   }
 
-  function toggleMute(id) { if (state.solo) state.solo = null; state.muted[id] = !state.muted[id]; refreshMix(); }
-  function toggleSolo(id) { state.solo = state.solo === id ? null : id; refreshMix(); }
+  function toggleMute(id) { if (state.uploaded) return; state.arrangement = "full"; if (state.solo) state.solo = null; state.muted[id] = !state.muted[id]; refreshMix(); }
+  function toggleSolo(id) { if (state.uploaded) return; state.arrangement = "full"; state.solo = state.solo === id ? null : id; refreshMix(); }
 
   function init() {
     buildTimeline(); $("#time-total").textContent = fmt(DURATION); update();
@@ -170,16 +172,25 @@
     $("#forward-btn").addEventListener("click", () => seek(state.time + 5));
     $("#seek").addEventListener("input", e => seek(Number(e.target.value)));
     $("#loop-btn").addEventListener("click", e => { state.loop = !state.loop; e.currentTarget.classList.toggle("active", state.loop); });
+    $("#arrangement-btn").addEventListener("click", () => { if (state.uploaded) return; state.arrangement = state.arrangement === "full" ? "plain" : "full"; refreshMix(); });
+    $("#principle-btn").addEventListener("click", e => {
+      const copy = $("#principle-copy"), expanded = copy.hidden;
+      copy.hidden = !expanded; e.currentTarget.setAttribute("aria-expanded", String(expanded));
+      e.currentTarget.textContent = expanded ? "收起原理" : "了解原理";
+    });
     $("#import-btn").addEventListener("click", () => $("#audio-file").click());
     $("#audio-file").addEventListener("change", e => {
       const file = e.target.files[0]; if (!file) return;
       if (state.playing) pause(); upload.src = URL.createObjectURL(file); state.uploaded = true; state.time = 0;
+      state.loop = false; state.arrangement = "full"; state.solo = null; state.muted = {};
+      $$(".track-toggles button, #arrangement-btn").forEach(button => { button.disabled = true; });
       upload.onloadedmetadata = () => { $("#time-total").textContent = fmt(Math.min(upload.duration, DURATION)); };
       $(".stage-title h1").innerHTML = `${file.name.replace(/\.[^.]+$/, "")}<em>LOCAL AUDIO</em>`; update();
     });
     $$(".view-switch button").forEach(btn => btn.addEventListener("click", () => {
       $$(".view-switch button").forEach(b => b.classList.toggle("active", b === btn));
-      $("#band-stage").classList.toggle("overhead", btn.dataset.view === "focus");
+      document.body.dataset.listeningMode = btn.dataset.view;
+      $("#band-stage").classList.toggle("overhead", btn.dataset.view === "detail");
     }));
     document.addEventListener("keydown", e => {
       if (e.target.tagName === "INPUT") return;
@@ -187,6 +198,17 @@
       if (e.code === "ArrowLeft") seek(state.time - 5);
       if (e.code === "ArrowRight") seek(state.time + 5);
     });
+    if (location.protocol === "file:" || location.hostname === "localhost" || location.hostname === "127.0.0.1") {
+      window.__ONSEKI_TEST__ = {
+        deriveViewState,
+        getViewState: () => viewStateAt(),
+        seek,
+        toggleMute,
+        toggleSolo,
+        pause,
+        isPlaying: () => state.playing
+      };
+    }
   }
   document.readyState === "loading" ? document.addEventListener("DOMContentLoaded", init) : init();
 })();

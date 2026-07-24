@@ -1,0 +1,9 @@
+{
+  "name": "onseki",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "node --check app.js && node --check player-state.mjs && node --test tests/*.test.mjs",
+    "validate:mvp": "node scripts/validate-mvp.mjs"
+  }
+}

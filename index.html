@@ -34,8 +34,9 @@
               <h1>《残响之间》<em>Between Echoes</em></h1>
             </div>
             <div class="view-switch" role="group" aria-label="视图切换">
-              <button type="button" class="active" data-view="stage">乐队</button>
-              <button type="button" data-view="focus">俯瞰</button>
+              <button type="button" data-view="immerse">沉浸</button>
+              <button type="button" class="active" data-view="observe">观察</button>
+              <button type="button" data-view="detail">拆解</button>
             </div>
           </div>
 
@@ -74,6 +75,7 @@
 
         <aside class="analysis-panel">
           <p class="eyebrow">COMPOSITION TRACE</p>
+          <p class="analysis-source" id="analysis-source">示例预设 · 编曲数据</p>
           <div class="moment">
             <span>此刻 / <b id="section-name">引子</b></span>
             <p id="moment-copy">一个未说完的句子，停在空气里。</p>
@@ -82,10 +84,13 @@
             <div><dt>和声</dt><dd id="chord">Dm(add9)</dd></div>
             <div><dt>重心</dt><dd id="register">中低音区</dd></div>
             <div><dt>密度</dt><dd><span class="meter"><i id="density-meter"></i></span><b id="density">24%</b></dd></div>
+            <div><dt>主声部</dt><dd id="lead-instrument">毛毡钢琴</dd></div>
           </dl>
           <div class="trace-card">
             <span class="trace-index">TRACE 01</span>
             <p id="trace-copy">旋律没有急着落到根音，而是停在九度音上，留下类似坂本龙一式的悬置感。</p>
+            <button type="button" class="principle-btn" id="principle-btn" aria-expanded="false">了解原理</button>
+            <p class="principle-copy" id="principle-copy" hidden></p>
           </div>
           <div class="next-cue"><span>NEXT CUE</span><b id="next-time">00:12</b><p id="next-copy">大提琴进入，与钢琴形成反向运动</p></div>
         </aside>
@@ -108,7 +113,7 @@
       <section class="daw" aria-label="实时多轨时间线">
         <div class="daw-head">
           <div><p class="eyebrow">MULTITRACK ARRANGEMENT</p><h2>演奏进行</h2></div>
-          <div class="daw-legend"><span><i class="live-color"></i>正在发声</span><span><i class="rest-color"></i>留白</span><button type="button" id="loop-btn">↻ 循环</button></div>
+          <div class="daw-legend"><span><i class="live-color"></i>正在发声</span><span><i class="rest-color"></i>留白</span><button type="button" id="arrangement-btn">完整编排</button><button type="button" id="loop-btn">↻ 当前片段</button></div>
         </div>
         <div class="ruler-label">TRACK</div>
         <div class="ruler" id="ruler"></div>
@@ -117,9 +122,9 @@
         </div>
       </section>
 
-      <footer><span>SPACE 播放 / 暂停</span><span>← → 跳转 5 秒</span><p>不是答案，是一张可以反复聆听的编曲地图。</p></footer>
+      <footer><span>SPACE 播放 / 暂停</span><span>← → 跳转 5 秒</span><p id="honesty-note">示例曲目使用预设编排数据；它不是原作分轨。</p></footer>
     </main>
     <audio id="uploaded-audio"></audio>
-    <script src="./app.js"></script>
+    <script type="module" src="./app.js"></script>
   </body>
 </html>

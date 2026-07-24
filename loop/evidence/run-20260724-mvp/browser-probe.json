@@ -1,0 +1,32 @@
+{
+  "run_id": "run-20260724-mvp",
+  "attempt_id": "attempt-mvp-001",
+  "environment": "Chrome local page at 127.0.0.1",
+  "probes": [
+    {
+      "name": "shared-boundaries",
+      "result": "PASS",
+      "samples": [
+        [0, "引子", "引子", "00:00.0"],
+        [12, "发展", "发展", "00:12.0"],
+        [22, "展开", "展开", "00:22.0"],
+        [36, "余韵", "余韵", "00:36.0"]
+      ]
+    },
+    {
+      "name": "mix-state",
+      "result": "PASS",
+      "detail": "At 13 seconds mute(strings) set both musician and track row to muted. solo(keys) set keys active and strings/bass/drums muted."
+    },
+    {
+      "name": "transport",
+      "result": "PASS",
+      "detail": "Playback advanced to 0.4548 seconds. After pause, the timestamp did not change during 300ms."
+    },
+    {
+      "name": "mvp-controls",
+      "result": "PASS",
+      "detail": "Plain arrangement left only keys active; principle disclosure became visible; immersive view hid analysis and DAW; detail view retained the selected state."
+    }
+  ]
+}

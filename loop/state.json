@@ -8,23 +8,23 @@
   "active_gap_id": null,
   "active_attempt_id": null,
   "write_lock": null,
-  "last_verified_version": "demo-v1",
+  "last_verified_version": "mvp-candidate-001",
   "health": {
     "build": "PASS",
-    "player_sync": "UNKNOWN",
-    "mix_controls": "UNKNOWN",
+    "player_sync": "PASS",
+    "mix_controls": "PASS",
     "accessibility": "UNKNOWN"
   },
   "counters": {
-    "verified_transitions": 0,
+    "verified_transitions": 1,
     "rejected_hypotheses": 0,
     "human_decisions_pending": 0
   },
   "last_transition": {
-    "from": null,
+    "from": "VALIDATING",
     "to": "IDLE",
-    "reason": "M0 loop skeleton initialized",
-    "run_id": "run-bootstrap-001"
+    "reason": "MVP candidate passed deterministic and browser-backed validation",
+    "run_id": "run-20260724-mvp"
   },
-  "updated_at": "2026-07-23T00:00:00Z"
+  "updated_at": "2026-07-24T11:18:00Z"
 }

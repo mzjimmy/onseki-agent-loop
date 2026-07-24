@@ -1,6 +1,6 @@
 {
   "schema_version": "0.1",
-  "automation_enabled": false,
+  "automation_enabled": true,
   "execution_mode": "candidate-only",
   "max_cycles_per_day": 3,
   "max_attempts_per_gap": 3,
