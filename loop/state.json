@@ -8,7 +8,7 @@
   "active_gap_id": null,
   "active_attempt_id": null,
   "write_lock": null,
-  "last_verified_version": "60f9623",
+  "last_verified_version": "38d71a2",
   "health": {
     "build": "PASS",
     "player_sync": "PASS",
@@ -26,5 +26,5 @@
     "reason": "Transport controls passed deterministic and browser-state validation",
     "run_id": "run-20260724-transport"
   },
-  "updated_at": "2026-07-24T12:01:00Z"
+  "updated_at": "2026-07-24T12:02:00Z"
 }
