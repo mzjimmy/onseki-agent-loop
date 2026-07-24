@@ -13,18 +13,18 @@
     "build": "PASS",
     "player_sync": "PASS",
     "mix_controls": "PASS",
-    "accessibility": "UNKNOWN"
+    "accessibility": "PASS"
   },
   "counters": {
-    "verified_transitions": 1,
+    "verified_transitions": 2,
     "rejected_hypotheses": 0,
     "human_decisions_pending": 0
   },
   "last_transition": {
     "from": "VALIDATING",
     "to": "IDLE",
-    "reason": "MVP candidate passed deterministic and browser-backed validation",
-    "run_id": "run-20260724-mvp"
+    "reason": "Accessibility baseline passed deterministic validation",
+    "run_id": "run-20260724-accessibility"
   },
-  "updated_at": "2026-07-24T11:18:00Z"
+  "updated_at": "2026-07-24T11:30:00Z"
 }

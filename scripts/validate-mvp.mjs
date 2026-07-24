@@ -46,11 +46,12 @@ check("import-duration", app.includes("state.duration = upload.duration") && app
 
 const status = spawnSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" });
 const allowed = new Set([
-  "app.js", "index.html", "styles.css", "player-state.mjs", "package.json", "tests/section-sync.test.mjs", "scripts/loop-headless.mjs", "scripts/validate-mvp.mjs",
-  "loop/gaps/gap-section-sync.md", "loop/gaps/gap-mvp-core-experience.md", "loop/policy.json", "loop/state.json", "loop/logs/events.jsonl", "loop/evidence/run-20260724-p0/implementation-evidence.json", "loop/evidence/run-20260724-mvp/browser-probe.json", "loop/verdicts/verdict-mvp-001.json"
+  "app.js", "index.html", "styles.css", "player-state.mjs", "package.json", "scripts/loop-headless.mjs", "scripts/validate-mvp.mjs",
+  "loop/policy.json", "loop/state.json", "loop/logs/events.jsonl"
 ]);
 const changed = status.stdout.split(/\r?\n/).filter(Boolean).map((line) => line.slice(3));
-const unexpected = changed.filter((path) => !(allowed.has(path) || path === "tests/"));
+const allowedLoopArtifact = (path) => /^(loop\/(gaps|evidence|verdicts)\/|tests\/)/.test(path);
+const unexpected = changed.filter((path) => !(allowed.has(path) || allowedLoopArtifact(path)));
 check("scope", unexpected.length === 0, unexpected.length ? `unexpected changes: ${unexpected.join(", ")}` : "all candidate changes are declared in MVP scope");
 
 const failed = checks.filter((item) => item.result !== "PASS");

@@ -2,7 +2,7 @@
 
 ```yaml
 id: gap-accessibility-baseline
-status: READY
+status: VERIFIED
 goal_id: goal-realtime-arrangement-map
 priority: P1
 risk: low

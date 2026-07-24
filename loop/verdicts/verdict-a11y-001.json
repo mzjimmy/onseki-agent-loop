@@ -1,0 +1,54 @@
+{
+  "verdict": "INCONCLUSIVE",
+  "gap_id": "gap-accessibility-baseline",
+  "attempt_id": "attempt-a11y-unclaimed",
+  "contract_hash": "sha256:88b2ae0a886828fa6e4176258f148975a91bfd22ac63075e214c9758469723cb",
+  "checks": [
+    {
+      "id": "npm-run-check",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "No candidate package; cannot attribute check result to an accessibility attempt."
+    },
+    {
+      "id": "focus-visible-buttons",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "Missing candidate evidence for Acceptance 2."
+    },
+    {
+      "id": "aria-live-player-status",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "Missing candidate evidence for Acceptance 3."
+    },
+    {
+      "id": "track-row-data-state",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "Missing candidate evidence for Acceptance 4."
+    },
+    {
+      "id": "keyboard-space-arrows",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "Missing candidate evidence for Acceptance 5."
+    },
+    {
+      "id": "prefers-reduced-motion",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "Missing candidate evidence for Acceptance 6."
+    },
+    {
+      "id": "scope",
+      "result": "INCONCLUSIVE",
+      "evidence": "loop/evidence/run-20260724-a11y-val/validator-inputs.json",
+      "detail": "No candidate diff to scope-check; only gap queue commit present since baseline."
+    }
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.95,
+  "reason": "Mandatory validator inputs missing: Gap is READY not CANDIDATE, product tree equals baseline 208fb02, and no accessibility run evidence exists.",
+  "validated_at": "2026-07-24T11:27:02Z"
+}

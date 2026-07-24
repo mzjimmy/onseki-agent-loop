@@ -23,6 +23,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     tracks.forEach((track, ti) => {
       const row = document.createElement("div");
       row.className = "track-row";
+      row.setAttribute("role", "group");
       row.dataset.track = track.id;
       row.style.setProperty("--tc", track.color);
       row.innerHTML = `<div class="track-info">
@@ -127,6 +128,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     $("#register").textContent = state.uploaded ? "—" : sec.register; $("#density").textContent = state.uploaded ? "—" : `${sec.density}%`; $("#density-meter").style.width = state.uploaded ? "0%" : `${sec.density}%`;
     $("#trace-copy").textContent = state.uploaded ? "系统不会把预设编排、乐器或和声结论套用到你的单文件音频。" : sec.trace; $("#next-time").textContent = state.uploaded ? "—" : sec.next; $("#next-copy").textContent = state.uploaded ? "可继续播放；上传分析将在后续版本中提供。" : sec.cue;
     $("#conductor-note span").textContent = state.uploaded ? "单文件音频正在播放，等待分析。" : sec.note;
+    $("#player-status").textContent = `${state.playing ? "播放" : "暂停"} · ${state.uploaded ? "未分析音频" : sec.name}`;
     $("#lead-instrument").textContent = state.uploaded ? "未知" : sec.lead;
     $("#instrument-confidence").textContent = state.uploaded ? "尚未分析" : "预设数据 / 高";
     $("#principle-copy").textContent = state.uploaded ? "这项解释只适用于内置示例，不适用于尚未分析的导入音频。" : sec.principle;
@@ -142,6 +144,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
       $(`.track-row[data-track="${tr.id}"]`).classList.toggle("is-live", on);
       $(`.musician[data-track="${tr.id}"]`).dataset.state = trackView.muted ? "muted" : on ? "active" : "rest";
       $(`.track-row[data-track="${tr.id}"]`).dataset.state = trackView.muted ? "muted" : on ? "active" : "rest";
+      $(`.track-row[data-track="${tr.id}"]`).setAttribute("aria-label", `${tr.cn}：${trackView.muted ? "静音" : on ? "正在发声" : "留白"}`);
     });
   }
 

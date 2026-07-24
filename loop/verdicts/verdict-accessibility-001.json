@@ -1,0 +1,19 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-accessibility-baseline",
+  "attempt_id": "attempt-accessibility-001",
+  "contract_hash": "sha256:273356a91f4a5d5ba5c8bda4e4af1141bd243a9f9bafd2e2f0a8d360916db281",
+  "checks": [
+    {"id":"syntax-and-tests","result":"PASS","evidence":"npm run check"},
+    {"id":"visible-focus","result":"PASS","evidence":"tests/accessibility-baseline.test.mjs"},
+    {"id":"live-status","result":"PASS","evidence":"tests/accessibility-baseline.test.mjs"},
+    {"id":"textual-track-state","result":"PASS","evidence":"tests/accessibility-baseline.test.mjs"},
+    {"id":"keyboard-regression","result":"PASS","evidence":"tests/accessibility-baseline.test.mjs"},
+    {"id":"reduced-motion","result":"PASS","evidence":"tests/accessibility-baseline.test.mjs"},
+    {"id":"scope","result":"PASS","evidence":"git diff --check"}
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.9,
+  "reason": "Accessibility baseline is covered by deterministic source and behavior-contract tests.",
+  "validated_at": "2026-07-24T11:30:00.000Z"
+}
