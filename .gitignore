@@ -1,0 +1,42 @@
+# Local and editor state
+.DS_Store
+.env
+.env.*
+!.env.example
+.idea/
+.vscode/
+
+# Dependencies and build output
+node_modules/
+dist/
+build/
+.cache/
+coverage/
+*.log
+
+# Loop runtime artifacts
+loop/evidence/*
+!loop/evidence/.gitkeep
+loop/runs/*
+!loop/runs/.gitkeep
+loop/*.lock
+
+# Local deployment metadata and credentials
+.openai/
+.wrangler/
+
+# Audio, scores, books and private reference material
+音频资产/
+参考资料/
+*.mp3
+*.wav
+*.m4a
+*.aac
+*.flac
+*.pdf
+
+# Temporary artifacts
+*.tmp
+*.temp
+*.tar
+*.tar.gz

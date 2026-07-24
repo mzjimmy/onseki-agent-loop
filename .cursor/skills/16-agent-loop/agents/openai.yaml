@@ -1,0 +1,4 @@
+interface:
+  display_name: "Agent Loop"
+  short_description: "Run evidence-gated autonomous development loops"
+  default_prompt: "Use $16-agent-loop to select one READY gap, execute it within its boundaries, validate it independently, and update state and logs."

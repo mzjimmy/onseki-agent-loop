@@ -1,0 +1,30 @@
+{
+  "schema_version": "0.1",
+  "automation_enabled": false,
+  "execution_mode": "candidate-only",
+  "max_cycles_per_day": 3,
+  "max_attempts_per_gap": 3,
+  "max_minutes_per_cycle": 45,
+  "require_clean_git_worktree": true,
+  "required_branch_prefix": "loop/",
+  "allow_product_code_edits": true,
+  "allow_state_and_log_edits": true,
+  "allow_network": false,
+  "allow_dependency_install": false,
+  "allow_secrets": false,
+  "allow_destructive_commands": false,
+  "allow_deploy": false,
+  "human_gates": [
+    "product_direction",
+    "acceptance_change",
+    "production_access",
+    "public_publish",
+    "copyrighted_asset",
+    "validator_conflict"
+  ],
+  "stop_states": [
+    "WAITING_HUMAN",
+    "BLOCKED",
+    "COMPLETE"
+  ]
+}

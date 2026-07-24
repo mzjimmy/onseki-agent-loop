@@ -1,0 +1,96 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://onseki.local/schemas/state.schema.json",
+  "title": "ONSEKI Loop State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "project",
+    "loop_status",
+    "product_phase",
+    "active_goal_id",
+    "active_gap_id",
+    "active_attempt_id",
+    "write_lock",
+    "last_verified_version",
+    "health",
+    "counters",
+    "last_transition",
+    "updated_at"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "schema_version": { "const": "0.1" },
+    "project": { "const": "onseki" },
+    "loop_status": {
+      "enum": [
+        "IDLE",
+        "SCOPING",
+        "BASELINING",
+        "IMPLEMENTING",
+        "VALIDATING",
+        "WAITING_HUMAN",
+        "BLOCKED",
+        "ROLLING_BACK",
+        "COMPLETE"
+      ]
+    },
+    "product_phase": {
+      "enum": ["EXPLORATION", "IMPLEMENTATION", "HARDENING", "MAINTENANCE"]
+    },
+    "active_goal_id": { "type": ["string", "null"] },
+    "active_gap_id": { "type": ["string", "null"] },
+    "active_attempt_id": { "type": ["string", "null"] },
+    "write_lock": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["owner", "gap_id", "acquired_at", "expires_at"],
+          "properties": {
+            "owner": { "type": "string", "minLength": 1 },
+            "gap_id": { "type": "string", "minLength": 1 },
+            "acquired_at": { "type": "string", "format": "date-time" },
+            "expires_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      ]
+    },
+    "last_verified_version": { "type": ["string", "null"] },
+    "health": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "enum": ["PASS", "FAIL", "DEGRADED", "UNKNOWN", "NOT_APPLICABLE"]
+      }
+    },
+    "counters": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verified_transitions",
+        "rejected_hypotheses",
+        "human_decisions_pending"
+      ],
+      "properties": {
+        "verified_transitions": { "type": "integer", "minimum": 0 },
+        "rejected_hypotheses": { "type": "integer", "minimum": 0 },
+        "human_decisions_pending": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "last_transition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "reason", "run_id"],
+      "properties": {
+        "from": { "type": ["string", "null"] },
+        "to": { "type": "string", "minLength": 1 },
+        "reason": { "type": "string", "minLength": 1 },
+        "run_id": { "type": "string", "minLength": 1 }
+      }
+    },
+    "updated_at": { "type": "string", "format": "date-time" }
+  }
+}

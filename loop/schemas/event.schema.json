@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://onseki.local/schemas/event.schema.json",
+  "title": "ONSEKI Loop Event",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "event_id",
+    "timestamp",
+    "run_id",
+    "actor",
+    "event_type",
+    "goal_id",
+    "gap_id",
+    "attempt_id",
+    "from_state",
+    "to_state",
+    "evidence",
+    "summary",
+    "confidence",
+    "needs_human"
+  ],
+  "properties": {
+    "event_id": { "type": "string", "pattern": "^evt-" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "run_id": { "type": "string", "pattern": "^run-" },
+    "actor": {
+      "enum": ["orchestrator", "implementer", "validator", "human", "system"]
+    },
+    "event_type": {
+      "enum": [
+        "RUN_STARTED",
+        "BASELINE_CAPTURED",
+        "GAP_CREATED",
+        "GAP_CLAIMED",
+        "HYPOTHESIS_PROPOSED",
+        "CHANGE_APPLIED",
+        "CHECK_EXECUTED",
+        "VALIDATION_REQUESTED",
+        "VALIDATION_PASSED",
+        "VALIDATION_FAILED",
+        "HUMAN_DECISION_REQUESTED",
+        "ROLLBACK_COMPLETED",
+        "STATE_TRANSITION",
+        "RUN_FINISHED"
+      ]
+    },
+    "goal_id": { "type": ["string", "null"] },
+    "gap_id": { "type": ["string", "null"] },
+    "attempt_id": { "type": ["string", "null"] },
+    "from_state": { "type": ["string", "null"] },
+    "to_state": { "type": ["string", "null"] },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "kind"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+          "kind": {
+            "enum": ["build", "test", "state-sample", "screenshot", "video", "diff", "decision"]
+          }
+        }
+      }
+    },
+    "summary": { "type": "string", "minLength": 1, "maxLength": 280 },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "needs_human": { "type": "boolean" }
+  }
+}

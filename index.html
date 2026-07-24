@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#090b0c" />
+    <title>音迹 ONSEKI — 看见音乐如何被演奏</title>
+    <meta name="description" content="一个用 3D 虚拟乐队与 DAW 多轨时间线呈现音乐编排的实时播放器。" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Castoro:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="noise" aria-hidden="true"></div>
+    <main class="studio">
+      <header class="studio-header">
+        <div class="brand-lockup">
+          <span class="brand-mark" aria-hidden="true">〽</span>
+          <div><strong>音迹 <i>ONSEKI</i></strong><small>ARRANGEMENT LISTENING ROOM / 01</small></div>
+        </div>
+        <div class="header-actions">
+          <span class="status-dot">LIVE ENGINE</span>
+          <button class="plain-btn" id="import-btn" type="button">导入音频</button>
+          <input id="audio-file" type="file" accept="audio/*" hidden />
+        </div>
+      </header>
+
+      <section class="workspace">
+        <div class="stage-column">
+          <div class="stage-title">
+            <div>
+              <p class="eyebrow">NOW OBSERVING</p>
+              <h1>《残响之间》<em>Between Echoes</em></h1>
+            </div>
+            <div class="view-switch" role="group" aria-label="视图切换">
+              <button type="button" class="active" data-view="stage">乐队</button>
+              <button type="button" data-view="focus">俯瞰</button>
+            </div>
+          </div>
+
+          <div class="band-stage" id="band-stage" aria-label="3D 虚拟乐队舞台">
+            <div class="stage-depth depth-a"></div><div class="stage-depth depth-b"></div>
+            <div class="halo halo-one"></div><div class="halo halo-two"></div>
+            <div class="floor-grid"></div>
+            <div class="conductor-note" id="conductor-note"><b>编曲观察</b><span>钢琴先给出动机，其他声部暂时留白。</span></div>
+
+            <article class="musician musician-keys" data-track="keys">
+              <span class="signal">01</span>
+              <div class="avatar"><span class="head"></span><span class="body"></span><span class="arm arm-l"></span><span class="arm arm-r"></span></div>
+              <div class="instrument keyboard"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+              <div class="nameplate"><b>MAO</b><span>FELT PIANO</span></div>
+            </article>
+            <article class="musician musician-strings" data-track="strings">
+              <span class="signal">02</span>
+              <div class="avatar"><span class="head"></span><span class="body"></span><span class="arm arm-l"></span><span class="arm arm-r"></span></div>
+              <div class="instrument cello">♩</div>
+              <div class="nameplate"><b>REN</b><span>CELLO / STRINGS</span></div>
+            </article>
+            <article class="musician musician-bass" data-track="bass">
+              <span class="signal">03</span>
+              <div class="avatar"><span class="head"></span><span class="body"></span><span class="arm arm-l"></span><span class="arm arm-r"></span></div>
+              <div class="instrument bass-guitar">♬</div>
+              <div class="nameplate"><b>AKI</b><span>ELECTRIC BASS</span></div>
+            </article>
+            <article class="musician musician-drums" data-track="drums">
+              <span class="signal">04</span>
+              <div class="avatar"><span class="head"></span><span class="body"></span><span class="arm arm-l"></span><span class="arm arm-r"></span></div>
+              <div class="instrument drums"><i></i><i></i><i></i></div>
+              <div class="nameplate"><b>JUN</b><span>BRUSH DRUMS</span></div>
+            </article>
+          </div>
+        </div>
+
+        <aside class="analysis-panel">
+          <p class="eyebrow">COMPOSITION TRACE</p>
+          <div class="moment">
+            <span>此刻 / <b id="section-name">引子</b></span>
+            <p id="moment-copy">一个未说完的句子，停在空气里。</p>
+          </div>
+          <dl class="metrics">
+            <div><dt>和声</dt><dd id="chord">Dm(add9)</dd></div>
+            <div><dt>重心</dt><dd id="register">中低音区</dd></div>
+            <div><dt>密度</dt><dd><span class="meter"><i id="density-meter"></i></span><b id="density">24%</b></dd></div>
+          </dl>
+          <div class="trace-card">
+            <span class="trace-index">TRACE 01</span>
+            <p id="trace-copy">旋律没有急着落到根音，而是停在九度音上，留下类似坂本龙一式的悬置感。</p>
+          </div>
+          <div class="next-cue"><span>NEXT CUE</span><b id="next-time">00:12</b><p id="next-copy">大提琴进入，与钢琴形成反向运动</p></div>
+        </aside>
+      </section>
+
+      <section class="transport" aria-label="播放控制">
+        <div class="transport-buttons">
+          <button type="button" id="back-btn" aria-label="后退五秒">−5</button>
+          <button type="button" id="play-btn" class="play" aria-label="播放"><span>▶</span></button>
+          <button type="button" id="forward-btn" aria-label="前进五秒">+5</button>
+        </div>
+        <div class="clock"><b id="time-current">00:00.0</b><span>/</span><small id="time-total">00:48.0</small></div>
+        <div class="master-seek">
+          <input id="seek" type="range" min="0" max="48" value="0" step="0.05" aria-label="播放进度" />
+          <div class="section-marks"><span>引子</span><span>发展</span><span>展开</span><span>余韵</span></div>
+        </div>
+        <div class="tempo"><span>♩</span><b>72</b><small>4 / 4</small></div>
+      </section>
+
+      <section class="daw" aria-label="实时多轨时间线">
+        <div class="daw-head">
+          <div><p class="eyebrow">MULTITRACK ARRANGEMENT</p><h2>演奏进行</h2></div>
+          <div class="daw-legend"><span><i class="live-color"></i>正在发声</span><span><i class="rest-color"></i>留白</span><button type="button" id="loop-btn">↻ 循环</button></div>
+        </div>
+        <div class="ruler-label">TRACK</div>
+        <div class="ruler" id="ruler"></div>
+        <div class="track-stack" id="track-stack">
+          <div class="playhead" id="playhead"><i></i><span></span></div>
+        </div>
+      </section>
+
+      <footer><span>SPACE 播放 / 暂停</span><span>← → 跳转 5 秒</span><p>不是答案，是一张可以反复聆听的编曲地图。</p></footer>
+    </main>
+    <audio id="uploaded-audio"></audio>
+    <script src="./app.js"></script>
+  </body>
+</html>

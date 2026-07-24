@@ -1,0 +1,15 @@
+---
+description: Enforce the ONSEKI evidence-gated Agent Loop contract
+globs:
+alwaysApply: true
+---
+
+- Before changing product code, read @AGENT_LOOP_CONTRACT.md, @loop/state.json and @loop/policy.json.
+- Work on at most one READY Gap.
+- Do not change a Gap's acceptance criteria to fit an implementation.
+- Implementers cannot mark their own work VERIFIED.
+- Missing or conflicting evidence means INCONCLUSIVE, not PASS.
+- Product direction, production deployment, secrets and destructive changes require human approval.
+- Never run unattended work on main or master.
+- Never deploy from the unattended loop.
+- Stop when no new evidence is produced.
