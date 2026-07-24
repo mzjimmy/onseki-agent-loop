@@ -3,11 +3,18 @@
 import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { spawn, spawnSync } from "node:child_process";
-import { resolve } from "node:path";
+import { homedir } from "node:os";
+import { delimiter, join, resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const execute = process.argv.includes("--execute");
 const dryRun = process.argv.includes("--dry-run") || !execute;
+
+// launchd and cron do not source interactive shell files such as ~/.zshrc.
+// Include Cursor's default install directory explicitly for unattended cycles.
+process.env.PATH = [join(homedir(), ".local", "bin"), process.env.PATH]
+  .filter(Boolean)
+  .join(delimiter);
 
 function fail(message) {
   process.stderr.write(`Loop refused: ${message}\n`);

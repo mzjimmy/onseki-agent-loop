@@ -135,6 +135,9 @@ macOS 可以使用 `launchd`，服务器可以使用 cron 或 CI schedule。调�
 
 不要使用无限 `while true`。一次进程只跑一个 Gap，然后退出，让下一次调度重新读取持久状态。
 
+执行器会主动把 Cursor CLI 的默认安装目录 `~/.local/bin` 加入子进程
+`PATH`，因此 launchd/cron 不需要依赖交互式 shell 的 `.zshrc`。
+
 ### macOS launchd 示例
 
 仓库已经包含：
