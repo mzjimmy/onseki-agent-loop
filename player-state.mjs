@@ -14,18 +14,18 @@ export const SECTIONS = [
   { start: 36, end: 48.1, name: "余韵", chord: "Dm6 / A", register: "向低音区回落", density: 35, lead: "钢琴 / 弦乐", principle: "减法编排：让声部逐个离开，听者会用记忆补全剩下的空间。", moment: "乐队逐个离场，只留下无法被解释的余温。", trace: "结尾没有完整复现主题，只保留它的节奏轮廓。熟悉感来自记忆补全，也让作品保持开放。", next: "END", cue: "主题留下一个没有句号的尾音", note: "减法开始：鼓、贝斯、弦乐依次把空间还给钢琴。" }
 ];
 
-export function clampTime(time) {
-  return Math.max(0, Math.min(DURATION, Number.isFinite(time) ? time : 0));
+export function clampTime(time, duration = DURATION) {
+  return Math.max(0, Math.min(duration, Number.isFinite(time) ? time : 0));
 }
 
-export function sectionAt(time) {
-  const clamped = clampTime(time);
+export function sectionAt(time, duration = DURATION) {
+  const clamped = clampTime(time, duration);
   return SECTIONS.find((section) => clamped >= section.start && clamped < section.end) ?? SECTIONS.at(-1);
 }
 
-export function deriveViewState(time, mix = {}) {
-  const playbackTime = clampTime(time);
-  const section = sectionAt(playbackTime);
+export function deriveViewState(time, mix = {}, duration = DURATION) {
+  const playbackTime = clampTime(time, duration);
+  const section = sectionAt(playbackTime, duration);
   const solo = mix.solo ?? null;
   const muted = mix.muted ?? {};
   const tracks = Object.fromEntries(TRACKS.map((track) => {

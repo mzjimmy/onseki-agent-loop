@@ -22,3 +22,9 @@ test("mute and solo are reflected in the same track snapshot", () => {
   assert.equal(solo.tracks.strings.muted, true);
   assert.equal(solo.tracks.drums.muted, true);
 });
+
+test("an imported audio duration is not silently clipped to the demo duration", () => {
+  const imported = deriveViewState(55, {}, 60);
+  assert.equal(imported.time, 55);
+  assert.equal(deriveViewState(75, {}, 60).time, 60);
+});

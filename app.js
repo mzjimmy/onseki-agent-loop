@@ -5,7 +5,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const state = { time: 0, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", raf: 0, last: 0, uploaded: false, nextSchedule: 0 };
+  const state = { time: 0, duration: DURATION, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", raf: 0, last: 0, uploaded: false, nextSchedule: 0 };
   let audioCtx = null, master = null, timers = [], upload = $("#uploaded-audio");
 
   function waveBars(seed) {
@@ -47,7 +47,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
   function effectiveMix() {
     return state.arrangement === "plain" ? { ...state, solo: "keys" } : state;
   }
-  function viewStateAt(time = state.time) { return deriveViewState(time, effectiveMix()); }
+  function viewStateAt(time = state.time) { return deriveViewState(time, effectiveMix(), state.duration); }
   function active(id, t) { return viewStateAt(t).tracks[id].active; }
 
   function tone(freq, when, duration, type, gain, id) {
@@ -83,7 +83,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
   }
 
   function play() {
-    if (state.time >= DURATION - .05) state.time = 0;
+    if (state.time >= state.duration - .05) state.time = 0;
     state.playing = true; state.last = performance.now(); state.nextSchedule = state.time; document.body.classList.add("is-playing");
     $("#play-btn span").textContent = "Ⅱ"; $("#play-btn").setAttribute("aria-label", "暂停");
     if (state.uploaded) { upload.currentTime = state.time; upload.play(); } else { ensureAudio(); audioCtx.resume(); schedule(); }
@@ -104,8 +104,8 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     if (state.loop && state.time >= currentSection.end) {
       seek(currentSection.start); play(); return;
     }
-    if (state.time >= DURATION) {
-      state.time = DURATION; pause();
+    if (state.time >= state.duration) {
+      state.time = state.duration; pause();
     }
     update(); state.raf = requestAnimationFrame(tick);
   }
@@ -117,24 +117,27 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
 
   function update() {
     const view = viewStateAt();
-    $("#seek").value = view.time; $("#time-current").textContent = fmt(view.time);
+    $("#seek").value = view.time; $("#seek").max = state.duration; $("#time-current").textContent = fmt(view.time);
     const laneWidth = Math.max(0, $("#track-stack").clientWidth - (innerWidth <= 720 ? 130 : 190));
-    $("#playhead").style.transform = `translateX(${laneWidth * view.time / DURATION}px)`;
+    $("#playhead").style.transform = `translateX(${laneWidth * view.time / state.duration}px)`;
     $("#playhead span").textContent = fmt(view.time);
     const sec = view.section;
     document.documentElement.dataset.section = sec.name;
-    $("#section-name").textContent = sec.name; $("#moment-copy").textContent = sec.moment; $("#chord").textContent = sec.chord;
-    $("#register").textContent = sec.register; $("#density").textContent = `${sec.density}%`; $("#density-meter").style.width = `${sec.density}%`;
-    $("#trace-copy").textContent = sec.trace; $("#next-time").textContent = sec.next; $("#next-copy").textContent = sec.cue;
-    $("#conductor-note span").textContent = sec.note;
-    $("#lead-instrument").textContent = sec.lead;
-    $("#principle-copy").textContent = sec.principle;
+    $("#section-name").textContent = state.uploaded ? "未分析" : sec.name; $("#moment-copy").textContent = state.uploaded ? "正在播放你导入的音乐；分析结果尚未生成。" : sec.moment; $("#chord").textContent = state.uploaded ? "—" : sec.chord;
+    $("#register").textContent = state.uploaded ? "—" : sec.register; $("#density").textContent = state.uploaded ? "—" : `${sec.density}%`; $("#density-meter").style.width = state.uploaded ? "0%" : `${sec.density}%`;
+    $("#trace-copy").textContent = state.uploaded ? "系统不会把预设编排、乐器或和声结论套用到你的单文件音频。" : sec.trace; $("#next-time").textContent = state.uploaded ? "—" : sec.next; $("#next-copy").textContent = state.uploaded ? "可继续播放；上传分析将在后续版本中提供。" : sec.cue;
+    $("#conductor-note span").textContent = state.uploaded ? "单文件音频正在播放，等待分析。" : sec.note;
+    $("#lead-instrument").textContent = state.uploaded ? "未知" : sec.lead;
+    $("#instrument-confidence").textContent = state.uploaded ? "尚未分析" : "预设数据 / 高";
+    $("#principle-copy").textContent = state.uploaded ? "这项解释只适用于内置示例，不适用于尚未分析的导入音频。" : sec.principle;
+    $("#principle-btn").disabled = state.uploaded;
+    $("#unanalysed-notice").hidden = !state.uploaded;
     $("#analysis-source").textContent = state.uploaded ? "用户音频 · 尚未分析" : "示例预设 · 编曲数据";
     $("#honesty-note").textContent = state.uploaded ? "这首用户音频目前只同步播放时间；乐器、和弦与章节不会被伪装成检测结果。" : "示例曲目使用预设编排数据；它不是原作分轨。";
     $("#arrangement-btn").textContent = state.arrangement === "plain" ? "普通编排" : "完整编排";
     $("#arrangement-btn").classList.toggle("active", state.arrangement === "plain");
     tracks.forEach(tr => {
-      const trackView = view.tracks[tr.id], on = trackView.active;
+      const trackView = state.uploaded ? { muted: false, active: false } : view.tracks[tr.id], on = trackView.active;
       $(`.musician[data-track="${tr.id}"]`).classList.toggle("is-active", on);
       $(`.track-row[data-track="${tr.id}"]`).classList.toggle("is-live", on);
       $(`.musician[data-track="${tr.id}"]`).dataset.state = trackView.muted ? "muted" : on ? "active" : "rest";
@@ -144,7 +147,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
 
   function seek(t) {
     const was = state.playing; if (was) pause();
-    state.time = Math.max(0, Math.min(DURATION, t)); if (state.uploaded) upload.currentTime = state.time; update();
+    state.time = Math.max(0, Math.min(state.duration, t)); if (state.uploaded) upload.currentTime = state.time; update();
     if (was) play();
   }
 
@@ -184,7 +187,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
       if (state.playing) pause(); upload.src = URL.createObjectURL(file); state.uploaded = true; state.time = 0;
       state.loop = false; state.arrangement = "full"; state.solo = null; state.muted = {};
       $$(".track-toggles button, #arrangement-btn").forEach(button => { button.disabled = true; });
-      upload.onloadedmetadata = () => { $("#time-total").textContent = fmt(Math.min(upload.duration, DURATION)); };
+      upload.onloadedmetadata = () => { state.duration = upload.duration; $("#time-total").textContent = fmt(state.duration); update(); };
       $(".stage-title h1").innerHTML = `${file.name.replace(/\.[^.]+$/, "")}<em>LOCAL AUDIO</em>`; update();
     });
     $$(".view-switch button").forEach(btn => btn.addEventListener("click", () => {

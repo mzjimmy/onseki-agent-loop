@@ -1,0 +1,25 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-mvp-core-experience",
+  "attempt_id": "attempt-mvp-002",
+  "contract_hash": "sha256:7a534948c8ac460b72d5c55861bdf527e1e9b306876979ab09a49d521d0c4293",
+  "checks": [
+    {"id":"syntax-and-unit-tests","result":"PASS","evidence":"npm run check"},
+    {"id":"boundary-state-map","result":"PASS","evidence":"tests/section-sync.test.mjs"},
+    {"id":"playhead-time-contract","result":"PASS","evidence":"scripts/validate-mvp.mjs"},
+    {"id":"pause-evidence","result":"PASS","evidence":"loop/evidence/run-20260724-p0/implementation-evidence.json"},
+    {"id":"browser-mvp-probe","result":"PASS","evidence":"loop/evidence/run-20260724-mvp/browser-probe.json"},
+    {"id":"mix-state-map","result":"PASS","evidence":"tests/section-sync.test.mjs"},
+    {"id":"keyboard-controls","result":"PASS","evidence":"scripts/validate-mvp.mjs"},
+    {"id":"section-loop","result":"PASS","evidence":"scripts/validate-mvp.mjs"},
+    {"id":"listening-modes","result":"PASS","evidence":"scripts/validate-mvp.mjs"},
+    {"id":"arrangement-comparison","result":"PASS","evidence":"scripts/validate-mvp.mjs"},
+    {"id":"principle-disclosure","result":"PASS","evidence":"scripts/validate-mvp.mjs"},
+    {"id":"import-provenance-and-duration","result":"PASS","evidence":"tests/section-sync.test.mjs"},
+    {"id":"scope","result":"PASS","evidence":"scripts/validate-mvp.mjs"}
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.91,
+  "reason": "The imported-audio path now preserves source duration and suppresses authored analysis claims; all deterministic and browser-backed checks pass.",
+  "validated_at": "2026-07-24T11:21:00.153Z"
+}

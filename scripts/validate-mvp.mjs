@@ -29,7 +29,7 @@ check("syntax-and-unit-tests", projectCheck.status === 0, projectCheck.status ==
 
 const boundaries = [[0, "引子"], [12, "发展"], [22, "展开"], [36, "余韵"]];
 check("boundary-state-map", boundaries.every(([time, name]) => deriveViewState(time).section.name === name), "0/12/22/36 section map derived from one playback snapshot");
-check("playhead-time-contract", DURATION === 48 && app.includes("view.time / DURATION") && app.includes("#playhead span"), "playhead consumes derived time and the authored duration is 48 seconds");
+check("playhead-time-contract", DURATION === 48 && app.includes("view.time / state.duration") && app.includes("#playhead span"), "playhead consumes derived time and the active source duration");
 check("pause-evidence", evidence.includes("pause held the timestamp unchanged for a 300ms observation window"), "browser probe recorded a stable 300ms pause window", "loop/evidence/run-20260724-p0/implementation-evidence.json");
 check("browser-mvp-probe", browserEvidence.includes('"mvp-controls"') && browserEvidence.includes('"result": "PASS"'), "browser probe recorded the MVP interaction outcomes", "loop/evidence/run-20260724-mvp/browser-probe.json");
 
@@ -42,6 +42,7 @@ check("listening-modes", ["immerse", "observe", "detail"].every((mode) => html.i
 check("arrangement-comparison", app.includes('state.arrangement === "plain"') && app.includes('solo: "keys"'), "plain arrangement is a real piano-only mix state");
 check("principle-disclosure", html.includes('id="principle-btn"') && html.includes('id="principle-copy"') && app.includes("aria-expanded"), "optional principle disclosure is wired");
 check("import-provenance", app.includes("用户音频 · 尚未分析") && app.includes("button.disabled = true"), "single-file import is labelled unanalysed and authored stem controls are disabled");
+check("import-duration", app.includes("state.duration = upload.duration") && app.includes("deriveViewState(time, effectiveMix(), state.duration)"), "uploaded audio keeps its own duration instead of being clipped to the 48-second demo");
 
 const status = spawnSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" });
 const allowed = new Set([
