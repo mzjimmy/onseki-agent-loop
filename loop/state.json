@@ -8,7 +8,7 @@
   "active_gap_id": null,
   "active_attempt_id": null,
   "write_lock": null,
-  "last_verified_version": "fc6a0bb",
+  "last_verified_version": "e0215cb",
   "health": {
     "build": "PASS",
     "player_sync": "PASS",
