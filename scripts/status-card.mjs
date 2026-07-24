@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
@@ -32,10 +32,17 @@ function latest(events, type) {
   return [...events].reverse().find((event) => event.event_type === type);
 }
 
-const [stateSource, logSource] = await Promise.all([
+const [stateSource, logSource, gapNames] = await Promise.all([
   readFile(statePath, "utf8"),
-  readFile(logPath, "utf8")
+  readFile(logPath, "utf8"),
+  readdir(resolve(root, "loop/gaps"))
 ]);
+
+const readyGaps = (await Promise.all(
+  gapNames
+    .filter((name) => name.endsWith(".md"))
+    .map(async (name) => ({ name, source: await readFile(resolve(root, "loop/gaps", name), "utf8") }))
+)).filter(({ source }) => /^status:\s+READY$/m.test(source));
 
 const state = JSON.parse(stateSource);
 const events = parseEvents(logSource);
@@ -48,7 +55,7 @@ const card = [
   `可信状态变化：${validation?.summary ?? "暂无已验证变更"}`,
   `需要人工决策：${state.counters.human_decisions_pending}${decision ? `（${decision.summary}）` : ""}`,
   `失败但有价值的结论：${rejected?.summary ?? "暂无"}`,
-  `下一项候选动作：${state.active_gap_id ?? "领取 gap-section-sync 并建立基线"}`
+  `下一项候选动作：${state.active_gap_id ?? readyGaps[0]?.name.replace(/\.md$/, "") ?? "无 READY Gap；等待已确认的产品或可靠性需求"}`
 ];
 
 process.stdout.write(`${card.join("\n")}\n`);
