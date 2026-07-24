@@ -1,0 +1,15 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-transport-controls",
+  "attempt_id": "attempt-transport-001",
+  "checks": [
+    {"id": "tests", "result": "PASS", "evidence": "npm run check"},
+    {"id": "chapter-controls", "result": "PASS", "evidence": "loop/evidence/run-20260724-transport/browser-probe.json"},
+    {"id": "speed-and-volume", "result": "PASS", "evidence": "loop/evidence/run-20260724-transport/browser-probe.json"},
+    {"id": "uploaded-honesty", "result": "PASS", "evidence": "scripts/validate-transport.mjs"},
+    {"id": "browser-probe", "result": "PASS", "evidence": "loop/evidence/run-20260724-transport/browser-probe.json"}
+  ],
+  "confidence": 0.9,
+  "reason": "Deterministic controls validation and local browser state sample passed.",
+  "validated_at": "2026-07-24T12:01:00Z"
+}

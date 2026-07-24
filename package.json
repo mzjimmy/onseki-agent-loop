@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "check": "node --check app.js && node --check player-state.mjs && node --test tests/*.test.mjs",
-    "validate:mvp": "node scripts/validate-mvp.mjs"
+    "validate:mvp": "node scripts/validate-mvp.mjs",
+    "validate:transport": "node scripts/validate-transport.mjs"
   }
 }

@@ -100,9 +100,11 @@
 
       <section class="transport" aria-label="播放控制">
         <div class="transport-buttons">
+          <button type="button" id="previous-section-btn" aria-label="上一章节">‹‹</button>
           <button type="button" id="back-btn" aria-label="后退五秒">−5</button>
           <button type="button" id="play-btn" class="play" aria-label="播放"><span>▶</span></button>
           <button type="button" id="forward-btn" aria-label="前进五秒">+5</button>
+          <button type="button" id="next-section-btn" aria-label="下一章节">››</button>
         </div>
         <div class="clock"><b id="time-current">00:00.0</b><span>/</span><small id="time-total">00:48.0</small></div>
         <div class="master-seek">
@@ -110,6 +112,17 @@
           <div class="section-marks"><span>引子</span><span>发展</span><span>展开</span><span>余韵</span></div>
         </div>
         <div class="tempo"><span>♩</span><b>72</b><small>4 / 4</small></div>
+        <label class="playback-rate" for="playback-rate">速度
+          <select id="playback-rate" aria-label="播放速度">
+            <option value="0.75">0.75×</option>
+            <option value="1" selected>1×</option>
+            <option value="1.25">1.25×</option>
+            <option value="1.5">1.5×</option>
+          </select>
+        </label>
+        <label class="volume-control" for="volume">音量
+          <input id="volume" type="range" min="0" max="1" step="0.05" value="0.45" aria-label="音量" />
+        </label>
       </section>
 
       <section class="daw" aria-label="实时多轨时间线">

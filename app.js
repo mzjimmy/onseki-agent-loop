@@ -5,7 +5,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
 
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
-  const state = { time: 0, duration: DURATION, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", raf: 0, last: 0, uploaded: false, nextSchedule: 0 };
+  const state = { time: 0, duration: DURATION, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", speed: 1, volume: .45, raf: 0, last: 0, uploaded: false, nextSchedule: 0 };
   let audioCtx = null, master = null, timers = [], upload = $("#uploaded-audio");
 
   function waveBars(seed) {
@@ -41,7 +41,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     if (audioCtx) return;
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     master = audioCtx.createGain();
-    master.gain.value = .45;
+    master.gain.value = state.volume;
     master.connect(audioCtx.destination);
   }
 
@@ -62,17 +62,18 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
   function schedule() {
     if (state.uploaded) return;
     ensureAudio();
-    const now = audioCtx.currentTime, start = Math.max(state.time, state.nextSchedule), horizon = Math.min(DURATION, state.time + 2.2);
+    const now = audioCtx.currentTime, start = Math.max(state.time, state.nextSchedule), horizon = Math.min(DURATION, state.time + 2.2 * state.speed);
     for (let t = start; t < horizon; t += .5) {
-      const when = now + (t - state.time), step = Math.floor(t * 2), chord = viewStateAt(t).section;
+      const when = now + (t - state.time) / state.speed, step = Math.floor(t * 2), chord = viewStateAt(t).section;
       const roots = chord.name === "发展" ? [58, 62, 65, 69] : chord.name === "展开" ? [55, 58, 62, 69] : [50, 53, 57, 64];
-      tone(440 * 2 ** ((roots[step % roots.length] - 69) / 12), when, .34, "triangle", .075, "keys");
-      if (step % 2 === 0) tone(440 * 2 ** ((roots[0] - 12 - 69) / 12), when, .42, "sine", .12, "bass");
-      if (step % 4 === 0) tone(440 * 2 ** ((roots[1] - 69) / 12), when, 1.65, "sawtooth", .035, "strings");
+      tone(440 * 2 ** ((roots[step % roots.length] - 69) / 12), when, .34 / state.speed, "triangle", .075, "keys");
+      if (step % 2 === 0) tone(440 * 2 ** ((roots[0] - 12 - 69) / 12), when, .42 / state.speed, "sine", .12, "bass");
+      if (step % 4 === 0) tone(440 * 2 ** ((roots[1] - 69) / 12), when, 1.65 / state.speed, "sawtooth", .035, "strings");
       if (step % 2 === 0 && active("drums", t)) {
         const o = audioCtx.createOscillator(), g = audioCtx.createGain();
-        o.type = "sine"; o.frequency.setValueAtTime(step % 4 === 0 ? 110 : 190, when); o.frequency.exponentialRampToValueAtTime(48, when + .12);
-        g.gain.setValueAtTime(.08, when); g.gain.exponentialRampToValueAtTime(.0001, when + .13); o.connect(g); g.connect(master); o.start(when); o.stop(when + .14); timers.push(o);
+        const hit = .13 / state.speed;
+        o.type = "sine"; o.frequency.setValueAtTime(step % 4 === 0 ? 110 : 190, when); o.frequency.exponentialRampToValueAtTime(48, when + .12 / state.speed);
+        g.gain.setValueAtTime(.08, when); g.gain.exponentialRampToValueAtTime(.0001, when + hit); o.connect(g); g.connect(master); o.start(when); o.stop(when + hit + .01); timers.push(o);
       }
     }
     state.nextSchedule = horizon;
@@ -87,7 +88,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     if (state.time >= state.duration - .05) state.time = 0;
     state.playing = true; state.last = performance.now(); state.nextSchedule = state.time; document.body.classList.add("is-playing");
     $("#play-btn span").textContent = "Ⅱ"; $("#play-btn").setAttribute("aria-label", "暂停");
-    if (state.uploaded) { upload.currentTime = state.time; upload.play(); } else { ensureAudio(); audioCtx.resume(); schedule(); }
+    if (state.uploaded) { upload.currentTime = state.time; upload.playbackRate = state.speed; upload.volume = state.volume; upload.play(); } else { ensureAudio(); audioCtx.resume(); schedule(); }
     state.raf = requestAnimationFrame(tick);
   }
 
@@ -98,7 +99,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
 
   function tick(now) {
     if (!state.playing) return;
-    if (state.uploaded) state.time = upload.currentTime; else state.time += (now - state.last) / 1000;
+    if (state.uploaded) state.time = upload.currentTime; else state.time += (now - state.last) / 1000 * state.speed;
     state.last = now;
     if (!state.uploaded && state.nextSchedule - state.time < .9) schedule();
     const currentSection = viewStateAt().section;
@@ -129,6 +130,8 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     $("#trace-copy").textContent = state.uploaded ? "系统不会把预设编排、乐器或和声结论套用到你的单文件音频。" : sec.trace; $("#next-time").textContent = state.uploaded ? "—" : sec.next; $("#next-copy").textContent = state.uploaded ? "可继续播放；上传分析将在后续版本中提供。" : sec.cue;
     $("#conductor-note span").textContent = state.uploaded ? "单文件音频正在播放，等待分析。" : sec.note;
     $("#player-status").textContent = `${state.playing ? "播放" : "暂停"} · ${state.uploaded ? "未分析音频" : sec.name}`;
+    $("#previous-section-btn").disabled = state.uploaded || view.time <= 0;
+    $("#next-section-btn").disabled = state.uploaded || view.time >= state.duration;
     $("#lead-instrument").textContent = state.uploaded ? "未知" : sec.lead;
     $("#instrument-confidence").textContent = state.uploaded ? "尚未分析" : "预设数据 / 高";
     $("#principle-copy").textContent = state.uploaded ? "这项解释只适用于内置示例，不适用于尚未分析的导入音频。" : sec.principle;
@@ -154,6 +157,36 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     if (was) play();
   }
 
+  function seekSection(direction) {
+    if (state.uploaded) return;
+    const current = viewStateAt().section;
+    const index = sections.indexOf(current);
+    const targetIndex = direction < 0
+      ? (state.time - current.start < .35 ? index - 1 : index)
+      : index + 1;
+    const target = sections[Math.max(0, Math.min(sections.length - 1, targetIndex))];
+    seek(direction < 0 && targetIndex < 0 ? 0 : direction > 0 && index === sections.length - 1 ? state.duration : target.start);
+  }
+
+  function setSpeed(speed) {
+    const next = Number(speed);
+    if (!Number.isFinite(next) || next <= 0) return;
+    const was = state.playing;
+    if (was) pause();
+    state.speed = next;
+    upload.playbackRate = next;
+    $("#playback-rate").value = String(next);
+    update();
+    if (was) play();
+  }
+
+  function setVolume(volume) {
+    state.volume = Math.max(0, Math.min(1, Number(volume)));
+    if (master) master.gain.value = state.volume;
+    upload.volume = state.volume;
+    $("#volume").value = String(state.volume);
+  }
+
   function refreshMix() {
     tracks.forEach(tr => {
       const mix = effectiveMix(), muted = mix.solo ? mix.solo !== tr.id : !!mix.muted[tr.id];
@@ -176,7 +209,11 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
     $("#play-btn").addEventListener("click", () => state.playing ? pause() : play());
     $("#back-btn").addEventListener("click", () => seek(state.time - 5));
     $("#forward-btn").addEventListener("click", () => seek(state.time + 5));
+    $("#previous-section-btn").addEventListener("click", () => seekSection(-1));
+    $("#next-section-btn").addEventListener("click", () => seekSection(1));
     $("#seek").addEventListener("input", e => seek(Number(e.target.value)));
+    $("#playback-rate").addEventListener("change", e => setSpeed(e.target.value));
+    $("#volume").addEventListener("input", e => setVolume(e.target.value));
     $("#loop-btn").addEventListener("click", e => { state.loop = !state.loop; e.currentTarget.classList.toggle("active", state.loop); });
     $("#arrangement-btn").addEventListener("click", () => { if (state.uploaded) return; state.arrangement = state.arrangement === "full" ? "plain" : "full"; refreshMix(); });
     $("#principle-btn").addEventListener("click", e => {
@@ -199,7 +236,7 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
       $("#band-stage").classList.toggle("overhead", btn.dataset.view === "detail");
     }));
     document.addEventListener("keydown", e => {
-      if (e.target.tagName === "INPUT") return;
+      if (["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName)) return;
       if (e.code === "Space") { e.preventDefault(); state.playing ? pause() : play(); }
       if (e.code === "ArrowLeft") seek(state.time - 5);
       if (e.code === "ArrowRight") seek(state.time + 5);
@@ -211,8 +248,12 @@ import { DURATION, TRACKS as tracks, SECTIONS as sections, deriveViewState } fro
         seek,
         toggleMute,
         toggleSolo,
+        seekSection,
+        setSpeed,
+        setVolume,
         pause,
-        isPlaying: () => state.playing
+        isPlaying: () => state.playing,
+        getPlayback: () => ({ time: state.time, speed: state.speed, volume: state.volume })
       };
     }
   }

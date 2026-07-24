@@ -1,0 +1,15 @@
+{
+  "run_id": "run-20260724-transport",
+  "kind": "browser-state-sample",
+  "result": "PASS",
+  "sample": {
+    "seek_from": 12.5,
+    "previous_section_time": 12,
+    "next_section_time": 22,
+    "speed": 1.5,
+    "volume": 0.2,
+    "visible_speed": "1.5",
+    "visible_volume": "0.2"
+  },
+  "captured_at": "2026-07-24T12:00:00Z"
+}
