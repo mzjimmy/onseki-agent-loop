@@ -10,9 +10,11 @@ test("player exposes chapter, speed and volume controls without inventing import
     assert.match(html, new RegExp(`id=\\"${id}\\"`));
   }
   assert.match(app, /function seekSection\(direction\)/);
-  assert.match(app, /state\.uploaded \|\| view\.time <= 0/);
+  assert.match(app, /!analysisReady \|\| view\.time <= 0/);
+  assert.match(app, /function seekSection\(direction\) \{\s*if \(!hasAnalysis\(\)\) return;/);
   assert.match(app, /function setSpeed\(speed\)/);
   assert.match(app, /upload\.playbackRate = state\.speed/);
   assert.match(app, /function setVolume\(volume\)/);
   assert.match(app, /master\.gain\.value = state\.volume/);
+  assert.match(app, /localStorage\.setItem\("onseki-volume"/);
 });

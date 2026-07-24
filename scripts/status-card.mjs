@@ -49,11 +49,13 @@ const events = parseEvents(logSource);
 const validation = latest(events, "VALIDATION_PASSED");
 const decision = latest(events, "HUMAN_DECISION_REQUESTED");
 const rejected = latest(events, "VALIDATION_FAILED");
+const pendingDecisions = state.counters.human_decisions_pending;
+const decisionDetail = pendingDecisions > 0 && decision ? `（${decision.summary}）` : "";
 
 const card = [
   `系统状态：${systemStatus(state)} / Loop ${state.loop_status}`,
   `可信状态变化：${validation?.summary ?? "暂无已验证变更"}`,
-  `需要人工决策：${state.counters.human_decisions_pending}${decision ? `（${decision.summary}）` : ""}`,
+  `需要人工决策：${pendingDecisions}${decisionDetail}`,
   `失败但有价值的结论：${rejected?.summary ?? "暂无"}`,
   `下一项候选动作：${state.active_gap_id ?? readyGaps[0]?.name.replace(/\.md$/, "") ?? "无 READY Gap；等待已确认的产品或可靠性需求"}`
 ];

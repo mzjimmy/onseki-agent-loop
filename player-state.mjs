@@ -18,17 +18,19 @@ export function clampTime(time, duration = DURATION) {
   return Math.max(0, Math.min(duration, Number.isFinite(time) ? time : 0));
 }
 
-export function sectionAt(time, duration = DURATION) {
+export const DEMO_ANALYSIS = Object.freeze({ source: { kind: "preset", confidence: 1 }, sections: SECTIONS, tracks: TRACKS });
+
+export function sectionAt(time, duration = DURATION, analysis = DEMO_ANALYSIS) {
   const clamped = clampTime(time, duration);
-  return SECTIONS.find((section) => clamped >= section.start && clamped < section.end) ?? SECTIONS.at(-1);
+  return analysis.sections.find((section) => clamped >= section.start && clamped < section.end) ?? analysis.sections.at(-1);
 }
 
-export function deriveViewState(time, mix = {}, duration = DURATION) {
+export function deriveViewState(time, mix = {}, duration = DURATION, analysis = DEMO_ANALYSIS) {
   const playbackTime = clampTime(time, duration);
-  const section = sectionAt(playbackTime, duration);
+  const section = sectionAt(playbackTime, duration, analysis);
   const solo = mix.solo ?? null;
   const muted = mix.muted ?? {};
-  const tracks = Object.fromEntries(TRACKS.map((track) => {
+  const tracks = Object.fromEntries(analysis.tracks.map((track) => {
     const scheduled = track.clips.some(([start, duration]) => playbackTime >= start && playbackTime < start + duration);
     const isMuted = solo ? solo !== track.id : Boolean(muted[track.id]);
     return [track.id, {

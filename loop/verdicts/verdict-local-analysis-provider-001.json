@@ -1,0 +1,17 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-local-analysis-provider",
+  "attempt_id": "attempt-local-analysis-provider-001",
+  "contract_hash": "sha256:4403fb8f1ed5db532158637a8eafc6530c864694b1c218f545207744a844c0ee",
+  "checks": [
+    { "id": "tests", "result": "PASS", "evidence": null, "detail": "npm run check passed" },
+    { "id": "local-boundary", "result": "PASS", "evidence": "tests/analysis-engine.test.mjs", "detail": "provider receives file, duration and progress reporter with no network client" },
+    { "id": "progress", "result": "PASS", "evidence": "loop/evidence/run-20260724-local-provider/browser-probe.json", "detail": "browser observed labelled 45% analysis progress" },
+    { "id": "schema-gate", "result": "PASS", "evidence": "tests/analysis-engine.test.mjs", "detail": "result remains subject to provenance normalization" },
+    { "id": "completion", "result": "PASS", "evidence": "loop/evidence/run-20260724-local-provider/browser-probe.json", "detail": "browser moved from analyzing to analyzed with confidence provenance" }
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.93,
+  "reason": "The confirmed local-first provider protocol and visible progress path passed deterministic and browser-state validation without a network client.",
+  "validated_at": "2026-07-24T12:14:42Z"
+}

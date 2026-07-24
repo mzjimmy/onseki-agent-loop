@@ -1,0 +1,17 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-immersive-stage",
+  "attempt_id": "attempt-immersive-stage-001",
+  "contract_hash": "sha256:5590ad8c4cf9089484f6c799d827c0be2e8c3171122a4089e6b35ddeb818a4ba",
+  "checks": [
+    { "id": "tests", "result": "PASS", "evidence": null, "detail": "npm run check passed" },
+    { "id": "immersive-surface", "result": "PASS", "evidence": "loop/evidence/run-20260724-immersive/browser-probe.json", "detail": "browser probe confirms chrome suppression and a viewport-height stage" },
+    { "id": "keyboard-return", "result": "PASS", "evidence": "loop/evidence/run-20260724-immersive/browser-probe.json", "detail": "Escape restores observe mode" },
+    { "id": "section-lighting", "result": "PASS", "evidence": null, "detail": "all four shared section states define stage wash variables" },
+    { "id": "scope", "result": "PASS", "evidence": null, "detail": "no network or new runtime dependency added" }
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.92,
+  "reason": "Runtime and deterministic checks confirm the requested low-information immersive surface and its shared-clock lighting.",
+  "validated_at": "2026-07-24T12:03:23Z"
+}

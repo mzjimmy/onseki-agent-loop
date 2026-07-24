@@ -18,6 +18,18 @@ python3 -m http.server 4173
 
 然后访问 `http://localhost:4173`。
 
+### 本地分析（不上传音频）
+
+首次使用需安装本地运行环境，然后启动 loopback 服务：
+
+```bash
+/opt/homebrew/opt/python@3.11/bin/python3.11 -m venv .analysis-venv
+.analysis-venv/bin/pip install -r analysis-runtime/requirements.txt
+.analysis-venv/bin/python analysis-runtime/server.py --static-root .
+```
+
+访问 `http://127.0.0.1:8765`。音频仅在本机临时文件中处理，分析完成即删除；线上静态 demo 不会尝试上传或调用该服务。
+
 ## Agent Loop
 
 ```bash

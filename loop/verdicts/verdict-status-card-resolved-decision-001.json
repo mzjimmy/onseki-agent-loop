@@ -1,0 +1,15 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-status-card-resolved-decision",
+  "attempt_id": "attempt-status-card-resolved-decision-001",
+  "contract_hash": "sha256:d24b8732f9c4aacd4ec3969b9965ad625aefeaccd340a58fb22053aefb1e8455",
+  "checks": [
+    { "id": "tests", "result": "PASS", "evidence": "tests/status-card.test.mjs", "detail": "status card output is tested against resolved state" },
+    { "id": "resolved-decision-filter", "result": "PASS", "evidence": null, "detail": "counter zero prints no stale parenthesized decision" },
+    { "id": "loop", "result": "PASS", "evidence": null, "detail": "Loop state and event validation passed" }
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.98,
+  "reason": "The status card now treats the state counter as authoritative and retains historical requests only in the event log.",
+  "validated_at": "2026-07-24T12:57:43Z"
+}

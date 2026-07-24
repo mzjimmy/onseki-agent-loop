@@ -1,0 +1,19 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-analysis-contract",
+  "attempt_id": "attempt-analysis-contract-001",
+  "contract_hash": "sha256:cc9c6e7c84bd7ffca066f5d69e8f79bd1409fa032532df893367adaa133d07c0",
+  "checks": [
+    { "id": "tests", "result": "PASS", "evidence": null, "detail": "npm run check passed" },
+    { "id": "provider-boundary", "result": "PASS", "evidence": "tests/analysis-engine.test.mjs", "detail": "missing providers stay unavailable" },
+    { "id": "provenance-schema", "result": "PASS", "evidence": "tests/analysis-engine.test.mjs", "detail": "only complete AI data with confidence normalizes" },
+    { "id": "ui-state-machine", "result": "PASS", "evidence": null, "detail": "import flow supports analyzing, analyzed, unavailable and failed outcomes" },
+    { "id": "no-stem-claim", "result": "PASS", "evidence": null, "detail": "imported M/S controls remain disabled without separation" },
+    { "id": "volume-persistence", "result": "PASS", "evidence": null, "detail": "master volume is stored locally" },
+    { "id": "scope", "result": "PASS", "evidence": null, "detail": "all candidate changes are declared" }
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.9,
+  "reason": "The analysis boundary, honesty constraints, import state machine and deterministic checks passed; no real provider was invoked.",
+  "validated_at": "2026-07-24T11:59:43Z"
+}

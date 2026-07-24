@@ -1,0 +1,18 @@
+{
+  "verdict": "PASS",
+  "gap_id": "gap-local-analysis-runtime",
+  "attempt_id": "attempt-local-analysis-runtime-001",
+  "contract_hash": "sha256:47f0a0f47696b54ff5c9c82d7386bf8e4566043944ef33c90072049bc46d3300",
+  "checks": [
+    { "id": "offline-runtime", "result": "PASS", "evidence": "loop/evidence/run-20260724-local-runtime/runtime-probe.json", "detail": "Basic Pitch emitted valid JSON from a generated local WAV" },
+    { "id": "progress-boundary", "result": "PASS", "evidence": "loop/evidence/run-20260724-local-runtime/runtime-probe.json", "detail": "progress stays on stderr and JSON stays on stdout" },
+    { "id": "loopback-server", "result": "PASS", "evidence": "loop/evidence/run-20260724-local-runtime/runtime-probe.json", "detail": "health endpoint and analysis endpoint ran on 127.0.0.1" },
+    { "id": "browser-e2e", "result": "PASS", "evidence": "loop/evidence/run-20260724-local-runtime/runtime-probe.json", "detail": "browser reached analyzed state through loopback provider" },
+    { "id": "honesty", "result": "PASS", "evidence": null, "detail": "output labels pitch events as non-stems and leaves instrument identity unknown" },
+    { "id": "tests", "result": "PASS", "evidence": null, "detail": "npm run check and npm run validate:runtime passed" }
+  ],
+  "unexpected_changes": [],
+  "confidence": 0.94,
+  "reason": "The offline runtime, loopback endpoint, frontend provider, and honesty safeguards passed local execution and browser validation.",
+  "validated_at": "2026-07-24T12:42:24Z"
+}

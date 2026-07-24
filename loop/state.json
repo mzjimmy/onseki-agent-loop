@@ -16,15 +16,15 @@
     "accessibility": "PASS"
   },
   "counters": {
-    "verified_transitions": 3,
+    "verified_transitions": 8,
     "rejected_hypotheses": 0,
     "human_decisions_pending": 0
   },
   "last_transition": {
     "from": "VALIDATING",
     "to": "IDLE",
-    "reason": "Transport controls passed deterministic and browser-state validation",
-    "run_id": "run-20260724-transport"
+    "reason": "Status card no longer shows resolved human decisions as active",
+    "run_id": "run-20260724-status-card-resolved-decision"
   },
-  "updated_at": "2026-07-24T12:02:00Z"
+  "updated_at": "2026-07-24T12:57:43Z"
 }

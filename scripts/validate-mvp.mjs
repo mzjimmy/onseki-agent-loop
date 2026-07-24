@@ -42,7 +42,7 @@ check("listening-modes", ["immerse", "observe", "detail"].every((mode) => html.i
 check("arrangement-comparison", app.includes('state.arrangement === "plain"') && app.includes('solo: "keys"'), "plain arrangement is a real piano-only mix state");
 check("principle-disclosure", html.includes('id="principle-btn"') && html.includes('id="principle-copy"') && app.includes("aria-expanded"), "optional principle disclosure is wired");
 check("import-provenance", app.includes("用户音频 · 尚未分析") && app.includes("button.disabled = true"), "single-file import is labelled unanalysed and authored stem controls are disabled");
-check("import-duration", app.includes("state.duration = upload.duration") && app.includes("deriveViewState(time, effectiveMix(), state.duration)"), "uploaded audio keeps its own duration instead of being clipped to the 48-second demo");
+check("import-duration", app.includes("state.duration = upload.duration") && app.includes("deriveViewState(time, effectiveMix(), state.duration, state.analysis.data ?? DEMO_ANALYSIS)"), "uploaded audio keeps its own duration instead of being clipped to the 48-second demo");
 
 const status = spawnSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" });
 const allowed = new Set([

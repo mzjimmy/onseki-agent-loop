@@ -3,8 +3,13 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "check": "node --check app.js && node --check player-state.mjs && node --test tests/*.test.mjs",
+    "check": "node --check app.js && node --check player-state.mjs && node --check analysis-engine.js && node --test tests/*.test.mjs",
     "validate:mvp": "node scripts/validate-mvp.mjs",
-    "validate:transport": "node scripts/validate-transport.mjs"
+    "validate:transport": "node scripts/validate-transport.mjs",
+    "validate:analysis": "node scripts/validate-analysis-contract.mjs",
+    "validate:immerse": "node scripts/validate-immersive-stage.mjs",
+    "validate:local-analysis": "node scripts/validate-local-analysis-provider.mjs",
+    "validate:runtime": "node scripts/validate-local-runtime.mjs",
+    "validate:status-card": "node scripts/validate-status-card.mjs"
   }
 }
