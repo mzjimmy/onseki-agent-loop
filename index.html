@@ -11,7 +11,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Castoro:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;600&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="./styles.css" />
   </head>
-  <body>
+  <body data-listening-mode="observe">
     <div class="noise" aria-hidden="true"></div>
     <p class="sr-only" id="player-status" role="status" aria-live="polite">暂停 · 引子</p>
     <main class="studio">
@@ -42,31 +42,55 @@
           </div>
 
           <div class="band-stage" id="band-stage" aria-label="3D 虚拟乐队舞台">
-            <div class="stage-depth depth-a"></div><div class="stage-depth depth-b"></div>
-            <div class="halo halo-one"></div><div class="halo halo-two"></div>
-            <div class="floor-grid"></div>
-            <div class="conductor-note" id="conductor-note"><b>编曲观察</b><span>钢琴先给出动机，其他声部暂时留白。</span></div>
+            <div class="scene-persp">
+              <div class="scene-stage">
+                <div class="stage-floor"></div>
+                <div class="floor-grid"></div>
+                <div class="stage-horizon"></div>
+                <div class="stage-haze haze-a"></div>
+                <div class="stage-haze haze-b"></div>
 
-            <article class="musician musician-keys" data-track="keys">
-              <span class="signal">01</span>
-              <img class="portrait" src="./assets/band/mao-keys.png" alt="MAO 演奏毛毡钢琴的舞台形象" />
-              <div class="nameplate"><b>MAO</b><span>FELT PIANO</span></div>
-            </article>
-            <article class="musician musician-strings" data-track="strings">
-              <span class="signal">02</span>
-              <img class="portrait" src="./assets/band/ren-strings.png" alt="REN 演奏大提琴的舞台形象" />
-              <div class="nameplate"><b>REN</b><span>CELLO / STRINGS</span></div>
-            </article>
-            <article class="musician musician-bass" data-track="bass">
-              <span class="signal">03</span>
-              <img class="portrait" src="./assets/band/aki-bass.png" alt="AKI 演奏电贝斯的舞台形象" />
-              <div class="nameplate"><b>AKI</b><span>ELECTRIC BASS</span></div>
-            </article>
-            <article class="musician musician-drums" data-track="drums">
-              <span class="signal">04</span>
-              <img class="portrait" src="./assets/band/jun-drums.png" alt="JUN 演奏鼓刷打击乐的舞台形象" />
-              <div class="nameplate"><b>JUN</b><span>BRUSH DRUMS</span></div>
-            </article>
+                <article class="musician musician-keys" data-track="keys" role="button" tabindex="0" title="毛毡钢琴 · 点击静音">
+                  <div class="m-halo" aria-hidden="true"></div>
+                  <div class="m-spot" aria-hidden="true"></div>
+                  <div class="m-fig"><img class="portrait" src="./assets/band/mao-keys.png" alt="MAO 演奏毛毡钢琴的舞台形象" /></div>
+                  <div class="m-pool" aria-hidden="true"></div>
+                  <div class="nameplate"><span class="signal">01</span><b>MAO</b><span class="role">FELT PIANO</span></div>
+                </article>
+                <article class="musician musician-strings" data-track="strings" role="button" tabindex="0" title="大提琴 / 弦乐 · 点击静音">
+                  <div class="m-halo" aria-hidden="true"></div>
+                  <div class="m-spot" aria-hidden="true"></div>
+                  <div class="m-fig"><img class="portrait" src="./assets/band/ren-strings.png" alt="REN 演奏大提琴的舞台形象" /></div>
+                  <div class="m-pool" aria-hidden="true"></div>
+                  <div class="nameplate"><span class="signal">02</span><b>REN</b><span class="role">CELLO / STRINGS</span></div>
+                </article>
+                <article class="musician musician-bass" data-track="bass" role="button" tabindex="0" title="电贝斯 · 点击静音">
+                  <div class="m-halo" aria-hidden="true"></div>
+                  <div class="m-spot" aria-hidden="true"></div>
+                  <div class="m-fig"><img class="portrait" src="./assets/band/aki-bass.png" alt="AKI 演奏电贝斯的舞台形象" /></div>
+                  <div class="m-pool" aria-hidden="true"></div>
+                  <div class="nameplate"><span class="signal">03</span><b>AKI</b><span class="role">ELECTRIC BASS</span></div>
+                </article>
+                <article class="musician musician-drums" data-track="drums" role="button" tabindex="0" title="鼓刷 / 打击乐 · 点击静音">
+                  <div class="m-halo" aria-hidden="true"></div>
+                  <div class="m-spot" aria-hidden="true"></div>
+                  <div class="m-fig"><img class="portrait" src="./assets/band/jun-drums.png" alt="JUN 演奏鼓刷打击乐的舞台形象" /></div>
+                  <div class="m-pool" aria-hidden="true"></div>
+                  <div class="nameplate"><span class="signal">04</span><b>JUN</b><span class="role">BRUSH DRUMS</span></div>
+                </article>
+              </div>
+            </div>
+
+            <div class="scene-vignette" aria-hidden="true"></div>
+            <div class="scene-grain" aria-hidden="true"></div>
+            <div class="conductor-note" id="conductor-note"><b>编曲观察 · 引子</b><span>钢琴先给出动机，其他声部暂时留白。</span></div>
+            <section class="analysis-status" id="analysis-status" data-phase="demo" hidden aria-live="polite" aria-atomic="true">
+              <div class="analysis-status-head"><span class="analysis-status-mark" aria-hidden="true"></span><b id="analysis-status-title">本地分析</b><span id="analysis-status-percent">—</span></div>
+              <p class="analysis-status-copy" id="analysis-status-copy"></p>
+              <div class="analysis-progress" aria-hidden="true"><i id="analysis-progress-bar"></i></div>
+              <p class="analysis-status-meta" id="analysis-status-meta"></p>
+              <button type="button" class="plain-btn" id="analysis-status-retry" hidden>重试本地分析</button>
+            </section>
           </div>
         </div>
 
@@ -130,11 +154,14 @@
         <div class="ruler" id="ruler"></div>
         <div class="track-stack" id="track-stack">
           <div class="playhead" id="playhead"><i></i><span></span></div>
-          <p class="unanalysed-notice" id="unanalysed-notice" hidden>单文件音频尚未完成乐器与章节分析，因此不展示虚构分轨。</p>
+          <div class="unanalysed-notice" id="unanalysed-notice" hidden>
+            <p id="unanalysed-copy">单文件音频尚未完成乐器与章节分析，因此不展示虚构分轨。</p>
+            <button type="button" class="plain-btn" id="analysis-retry-btn" hidden>重试本地分析</button>
+          </div>
         </div>
       </section>
 
-      <footer><span>SPACE 播放 / 暂停</span><span>← → 跳转 5 秒</span><p id="honesty-note">示例曲目使用预设编排数据；它不是原作分轨。</p></footer>
+      <footer><span>SPACE 播放 / 暂停</span><span>← → 跳转 5 秒</span><span>点击乐手 静音 / 恢复</span><p id="honesty-note">示例曲目使用预设编排数据；它不是原作分轨。</p></footer>
     </main>
     <audio id="uploaded-audio"></audio>
     <script type="module" src="./app.js"></script>

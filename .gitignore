@@ -43,3 +43,5 @@ loop/*.lock
 *.temp
 *.tar
 *.tar.gz
+.playwright-mcp/
+analysis-working-verified.png

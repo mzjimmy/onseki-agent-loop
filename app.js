@@ -7,7 +7,7 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
   const $ = (s, r = document) => r.querySelector(s);
   const $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const savedVolume = Number(localStorage.getItem("onseki-volume"));
-  const state = { time: 0, duration: DURATION, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", speed: 1, volume: Number.isFinite(savedVolume) ? Math.max(0, Math.min(1, savedVolume)) : .45, raf: 0, last: 0, uploaded: false, nextSchedule: 0, analysis: { phase: "demo", data: DEMO_ANALYSIS, reason: "" } };
+  const state = { time: 0, duration: DURATION, playing: false, loop: false, muted: {}, solo: null, arrangement: "full", speed: 1, volume: Number.isFinite(savedVolume) ? Math.max(0, Math.min(1, savedVolume)) : .45, raf: 0, last: 0, uploaded: false, nextSchedule: 0, analysis: { phase: "demo", data: DEMO_ANALYSIS, reason: "" }, analysisRun: 0, file: null };
   let audioCtx = null, master = null, timers = [], upload = $("#uploaded-audio");
 
   function waveBars(seed) {
@@ -22,6 +22,31 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
   function currentTracks() { return state.analysis.data?.tracks ?? DEMO_ANALYSIS.tracks; }
   function currentSections() { return state.analysis.data?.sections ?? DEMO_ANALYSIS.sections; }
   function hasAnalysis() { return state.analysis.phase === "demo" || state.analysis.phase === "analyzed"; }
+
+  function updateAnalysisStatus(waiting, analysisReady) {
+    const phase = state.analysis.phase;
+    const visible = state.uploaded && phase !== "demo";
+    const progress = Number.isFinite(state.analysis.progress) ? Math.round(state.analysis.progress * 100) : 0;
+    const status = $("#analysis-status");
+    status.hidden = !visible;
+    status.dataset.phase = phase;
+    $("#analysis-status-percent").textContent = waiting ? `${progress}%` : analysisReady ? "OK" : "NG";
+    $("#analysis-progress-bar").style.width = `${analysisReady ? 100 : waiting ? progress : 100}%`;
+    $("#analysis-status-retry").hidden = !["unavailable", "failed"].includes(phase);
+    if (waiting) {
+      $("#analysis-status-title").textContent = "正在本机分析";
+      $("#analysis-status-copy").textContent = state.analysis.label || "正在识别乐器与章节…";
+      $("#analysis-status-meta").textContent = "可继续播放；分析完成后会自动显示可信结果。";
+    } else if (analysisReady) {
+      $("#analysis-status-title").textContent = "分析完成";
+      $("#analysis-status-copy").textContent = `已生成 ${state.analysis.data.sections.length} 个章节与 ${state.analysis.data.tracks.length} 条演奏线索。`;
+      $("#analysis-status-meta").textContent = `本机处理完成 · 置信度 ${Math.round(state.analysis.data.source.confidence * 100)}%`;
+    } else {
+      $("#analysis-status-title").textContent = phase === "unavailable" ? "本机分析未启动" : "分析未完成";
+      $("#analysis-status-copy").textContent = state.analysis.reason || "未获得可验证的分析结果。";
+      $("#analysis-status-meta").textContent = "音频仍可正常播放；启动服务或检查文件后可重试。";
+    }
+  }
 
   function buildTimeline() {
     $("#ruler").innerHTML = Array.from({ length: 9 }, (_, i) => `<span>${String(Math.round(i * state.duration / 8)).padStart(2, "0")}</span>`).join("");
@@ -138,9 +163,10 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
     const waiting = state.analysis.phase === "analyzing" || state.analysis.phase === "queued";
     const unavailable = state.uploaded && !analysisReady;
     const progressCopy = state.analysis.label ? `${state.analysis.label}${Number.isFinite(state.analysis.progress) ? ` ${Math.round(state.analysis.progress * 100)}%` : ""}` : "正在识别乐器与章节…";
-    $("#section-name").textContent = analysisReady ? sec.name : waiting ? "分析中" : "未分析"; $("#moment-copy").textContent = analysisReady ? sec.moment : waiting ? `${progressCopy}；完成前不会显示推测结果。` : "正在播放你导入的音乐；分析结果尚未生成。"; $("#chord").textContent = analysisReady ? sec.chord : "—";
+    $("#section-name").textContent = analysisReady ? sec.name : waiting ? "分析中" : "未分析"; $("#moment-copy").textContent = analysisReady ? sec.moment : waiting ? `${progressCopy}；完成前不会显示推测结果。` : (state.analysis.reason || "正在播放你导入的音乐；分析结果尚未生成。"); $("#chord").textContent = analysisReady ? sec.chord : "—";
     $("#register").textContent = analysisReady ? sec.register : "—"; $("#density").textContent = analysisReady ? `${sec.density}%` : "—"; $("#density-meter").style.width = analysisReady ? `${sec.density}%` : "0%";
     $("#trace-copy").textContent = analysisReady ? sec.trace : waiting ? "分析完成后，系统才会展示带置信度的乐器、章节与和声解释。" : "系统不会把预设编排、乐器或和声结论套用到你的单文件音频。"; $("#next-time").textContent = analysisReady ? sec.next : "—"; $("#next-copy").textContent = analysisReady ? sec.cue : state.analysis.reason || "可继续播放；分析服务接入后会在此显示结果。";
+    $("#conductor-note b").textContent = analysisReady ? `编曲观察 · ${sec.name}` : "编曲观察";
     $("#conductor-note span").textContent = analysisReady ? sec.note : waiting ? progressCopy : "单文件音频正在播放，等待可信分析。";
     $("#player-status").textContent = `${state.playing ? "播放" : "暂停"} · ${analysisReady ? sec.name : waiting ? "正在分析音频" : "未分析音频"}`;
     $("#previous-section-btn").disabled = !analysisReady || view.time <= 0;
@@ -150,7 +176,9 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
     $("#principle-copy").textContent = analysisReady ? sec.principle : "这项解释只适用于已验证的分析结果。";
     $("#principle-btn").disabled = !analysisReady;
     $("#unanalysed-notice").hidden = !unavailable;
-    $("#unanalysed-notice").textContent = waiting ? `${progressCopy}；完成前不展示推测分轨。` : state.analysis.reason || "单文件音频尚未完成乐器与章节分析，因此不展示虚构分轨。";
+    $("#unanalysed-copy").textContent = waiting ? `${progressCopy}；完成前不展示推测分轨。` : state.analysis.reason || "单文件音频尚未完成乐器与章节分析，因此不展示虚构分轨。";
+    $("#analysis-retry-btn").hidden = !(state.uploaded && ["unavailable", "failed"].includes(state.analysis.phase));
+    updateAnalysisStatus(waiting, analysisReady);
     $("#analysis-source").textContent = state.analysis.phase === "demo" ? "示例预设 · 编曲数据" : state.analysis.phase === "analyzed" ? `AI 分析 · 置信度 ${Math.round(state.analysis.data.source.confidence * 100)}%` : waiting ? "用户音频 · 正在分析" : "用户音频 · 尚未分析";
     $("#honesty-note").textContent = state.analysis.phase === "demo" ? "示例曲目使用预设编排数据；它不是原作分轨。" : state.analysis.phase === "analyzed" ? "AI 分析结果带有置信度；它不是原始分轨。音源分离完成前，M/S 控制保持禁用。" : "这首用户音频目前只同步播放时间；乐器、和弦与章节不会被伪装成检测结果。";
     $("#arrangement-btn").textContent = state.arrangement === "plain" ? "普通编排" : "完整编排";
@@ -159,7 +187,7 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
       const trackView = analysisReady ? view.tracks[tr.id] : { muted: false, active: false }, on = trackView.active;
       const musician = $(`.musician[data-track="${tr.id}"]`), row = $(`.track-row[data-track="${tr.id}"]`), trackState = trackView.muted ? "muted" : on ? "active" : "rest";
       musician?.classList.toggle("is-active", on); row?.classList.toggle("is-live", on);
-      if (musician) musician.dataset.state = trackState;
+      if (musician) { musician.dataset.state = trackState; musician.title = !analysisReady ? tr.cn : trackView.muted ? `${tr.cn} 已静音 · 点击恢复` : `${tr.cn} · 点击静音`; }
       if (row) { row.dataset.state = trackState; row.setAttribute("aria-label", `${tr.cn}：${trackView.muted ? "静音" : on ? "正在发声" : "留白"}`); }
     });
   }
@@ -229,8 +257,36 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
     $("#band-stage").classList.toggle("overhead", mode === "detail");
   }
 
+  function selectAnalysisProvider() {
+    const localAnalyzer = window.__ONSEKI_LOCAL_ANALYZE_AUDIO__ ?? window.__ONSEKI_ANALYZE_AUDIO__;
+    return createLocalAnalysisProvider(localAnalyzer)
+      ?? (location.port === "8765" ? createLoopbackAnalysisProvider(`${location.origin}/api/analyze`) : null);
+  }
+
+  function unavailableReason() {
+    const onThisMachine = location.protocol === "file:" || ["localhost", "127.0.0.1"].includes(location.hostname);
+    return onThisMachine
+      ? "本地分析服务未连接：运行 .analysis-venv/bin/python analysis-runtime/server.py --static-root . ，然后从 http://127.0.0.1:8765 打开本页后重试。"
+      : "尚未配置分析服务；不会用示例数据替代你的音频。";
+  }
+
+  async function runAnalysis() {
+    if (!state.file) return;
+    const run = ++state.analysisRun;
+    state.analysis = { ...state.analysis, phase: "analyzing", progress: 0, label: "正在建立分析任务…" };
+    update();
+    const provider = selectAnalysisProvider();
+    const result = provider
+      ? await analyzeUploadedAudio(state.file, state.duration, provider, ({ progress, label }) => { if (run !== state.analysisRun) return; state.analysis = { ...state.analysis, phase: "analyzing", progress, label }; update(); })
+      : { phase: "unavailable", reason: unavailableReason() };
+    if (run !== state.analysisRun) return;
+    state.analysis = { ...result, reason: result.reason || "" };
+    if (result.phase === "analyzed") buildTimeline();
+    update();
+  }
+
   function init() {
-    buildTimeline(); $("#time-total").textContent = fmt(DURATION); $("#volume").value = String(state.volume); update();
+    buildTimeline(); $("#time-total").textContent = fmt(DURATION); $("#volume").value = String(state.volume); setListeningMode("observe"); update();
     $("#play-btn").addEventListener("click", () => state.playing ? pause() : play());
     $("#back-btn").addEventListener("click", () => seek(state.time - 5));
     $("#forward-btn").addEventListener("click", () => seek(state.time + 5));
@@ -249,22 +305,45 @@ import { analyzeUploadedAudio, createLocalAnalysisProvider, createLoopbackAnalys
     $("#import-btn").addEventListener("click", () => $("#audio-file").click());
     $("#audio-file").addEventListener("change", e => {
       const file = e.target.files[0]; if (!file) return;
-      if (state.playing) pause(); upload.src = URL.createObjectURL(file); state.uploaded = true; state.time = 0; state.analysis = { phase: "queued", data: null, reason: "", progress: 0, label: "正在排队" };
+      if (state.playing) pause(); state.analysisRun++;
       state.loop = false; state.arrangement = "full"; state.solo = null; state.muted = {};
+      state.file = file; state.uploaded = true; state.time = 0;
+      state.analysis = { phase: "queued", data: null, reason: "", progress: 0, label: "等待音频元数据…" };
       $$(".track-toggles button, #arrangement-btn").forEach(button => { button.disabled = true; });
-      upload.onloadedmetadata = async () => {
-        state.duration = upload.duration; $("#time-total").textContent = fmt(state.duration); state.analysis.phase = "analyzing"; buildTimeline(); update();
-        const localAnalyzer = window.__ONSEKI_LOCAL_ANALYZE_AUDIO__ ?? window.__ONSEKI_ANALYZE_AUDIO__;
-        const provider = createLocalAnalysisProvider(localAnalyzer)
-          ?? (location.port === "8765" ? createLoopbackAnalysisProvider(`${location.origin}/api/analyze`) : null);
-        const result = await analyzeUploadedAudio(file, state.duration, provider, ({ progress, label }) => { state.analysis = { ...state.analysis, phase: "analyzing", progress, label }; update(); });
-        state.analysis = { ...result, reason: result.reason || "" };
-        if (result.phase === "analyzed") buildTimeline();
+      $(".stage-title h1").innerHTML = `${file.name.replace(/\.[^.]+$/, "")}<em>LOCAL AUDIO</em>`;
+
+      // Wire handlers BEFORE setting src to avoid a race with loadedmetadata.
+      if (upload.src.startsWith("blob:")) URL.revokeObjectURL(upload.src);
+      const blobUrl = URL.createObjectURL(file);
+      upload.onloadedmetadata = () => {
+        if (!Number.isFinite(upload.duration) || upload.duration <= 0) {
+          state.analysis = { phase: "failed", reason: `浏览器无法解码 ${file.name}；请尝试 WAV 或 MP3。`, progress: 1, label: "解码失败" };
+          update(); return;
+        }
+        state.duration = upload.duration; $("#time-total").textContent = fmt(state.duration); buildTimeline(); update();
+        runAnalysis();
+      };
+      upload.onerror = () => {
+        if (upload.error) console.error("ONSEKI audio load error:", upload.error.code, upload.error.message);
+        state.analysis = { phase: "unavailable", reason: `无法加载 ${file.name}：${upload.error?.message || "未知解码错误"}。请尝试 WAV 或 MP3 格式。`, progress: 1, label: "加载失败" };
         update();
       };
-      $(".stage-title h1").innerHTML = `${file.name.replace(/\.[^.]+$/, "")}<em>LOCAL AUDIO</em>`; update();
+      upload.src = blobUrl;
+      update();
     });
+    $("#analysis-retry-btn").addEventListener("click", runAnalysis);
+    $("#analysis-status-retry").addEventListener("click", runAnalysis);
     $$(".view-switch button").forEach((btn) => btn.addEventListener("click", () => setListeningMode(btn.dataset.view)));
+    $$(".musician").forEach((musician) => {
+      musician.addEventListener("click", () => toggleMute(musician.dataset.track));
+      musician.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          e.stopPropagation();
+          toggleMute(musician.dataset.track);
+        }
+      });
+    });
     document.addEventListener("keydown", e => {
       if (["INPUT", "SELECT", "TEXTAREA"].includes(e.target.tagName)) return;
       if (e.key === "Escape" && document.body.dataset.listeningMode === "immerse") { setListeningMode("observe"); return; }
